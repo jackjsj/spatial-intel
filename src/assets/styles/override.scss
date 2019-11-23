@@ -1,0 +1,30 @@
+html {
+  font-size: 10vw;
+}
+body {
+  font-size: 12px;
+}
+.mc-green {
+  color: #94cfb8;
+}
+.van-nav-bar__left {
+  .van-icon-arrow-left {
+    color: #161616;
+    font-weight: bolder;
+  }
+}
+.van-nav-bar__title {
+  font-size: 24px;
+}
+.van-button--default {
+  background: #94cfb8;
+  border-radius: 5px;
+  border: none;
+  color: #fff;
+  font-size: 16px;
+  height: 30px;
+}
+.van-radio__icon--checked .van-icon {
+  background: #30badd;
+  border-color: #30badd;
+}
