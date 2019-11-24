@@ -1,0 +1,130 @@
+<template>
+  <div class="device-info-input vh100 flex-col">
+    <!-- 设备信息编辑 -->
+    <van-nav-bar
+      class="flex-none"
+      style="border-bottom:1px solid #EBEDFF"
+      title="快速添加"
+      left-text="返回"
+      left-arrow
+      :border="false"
+      @click-left="$router.back()" />
+    <div class="flex-auto blue-bg">
+      <div class="wifi-box flex-col jcc">
+        <!-- 图示 -->
+        <div class="flex aic jcc mb30">
+          <div class="img-wrapper">
+            <img src="@/assets/images/device-link.png" />
+          </div>
+        </div>
+        <!-- 信息表单 -->
+        <div>
+          <van-cell-group class="mb15" :border="false">
+            <van-field
+              :border="false"
+              v-model="deviceName"
+              label="设备名称："
+              right-icon="arrow-down"
+              readonly
+              placeholder="a9c255"
+              @click="popupVisible = true" />
+            <van-field :border="false" v-model="location" label="设备位置：" />
+            <van-field :border="false" v-model="deviceId" label="设备号：" />
+          </van-cell-group>
+        </div>
+      </div>
+      <div class="flex jcc">
+        <van-button class="cancel-btn"
+          style="border-width:1px;"
+          @click="addDevice">完成添加</van-button>
+      </div>
+    </div>
+
+  </div>
+</template>
+
+<script>
+export default {
+  data() {
+    return {
+      deviceName: '',
+      location: '',
+      deviceId: '',
+    };
+  },
+  methods: {
+    addDevice() {},
+  },
+};
+</script>
+
+<style lang="scss" scoped>
+.wifi-box {
+  height: 299px;
+  background: rgba(249, 252, 255, 1);
+  border-radius: 10px;
+  margin: 32.5px 30px 20px;
+  padding: 0 30px;
+}
+.img-wrapper {
+  width: 64px;
+  height: 64px;
+  // border: 1px solid rgba(112, 112, 112, 1);
+  img {
+    width: 100%;
+    height: 100%;
+  }
+}
+.dot {
+  width: 4px;
+  height: 4px;
+  border-radius: 50%;
+  &.dot1 {
+    background: rgba(137, 170, 254, 1);
+  }
+  &.dot2 {
+    background: rgba(86, 126, 239, 1);
+  }
+  &.dot3 {
+    background: rgba(32, 91, 255, 1);
+  }
+}
+.mb50 {
+  margin-bottom: 50px;
+}
+.mb38 {
+  margin-bottom: 38px;
+}
+.cancel-btn {
+  width: 312px;
+  height: 44px;
+  background: rgba(255, 255, 255, 0.1);
+  color: #f2f2f2;
+  border: 1px solid rgba(249, 252, 255, 1);
+  opacity: 1;
+  font-weight: bold;
+  font-size: 13px;
+  border-radius: 10px;
+}
+.c7c {
+  color: #7c7c7c;
+}
+.van-cell-group,
+.van-cell {
+  background: transparent;
+}
+.van-cell {
+  border-bottom: 1px solid rgb(203, 210, 220);
+  padding: 7px 0;
+  font-weight: bold;
+  color: #323232;
+  font-size: 13px;
+}
+</style>
+<style lang='scss'>
+.device-info-input {
+  .van-field__label {
+    width: 70px;
+  }
+}
+</style>

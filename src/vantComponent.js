@@ -9,9 +9,12 @@ import {
   Icon,
   Popup,
   Toast,
-  Field,
   Tabbar,
   TabbarItem,
+  Checkbox,
+  CheckboxGroup,
+  Field,
+  Picker,
   Swipe,
   SwipeItem,
   Panel,
@@ -25,18 +28,21 @@ import {
   Uploader,
 } from 'vant';
 
-Vue.use(NavBar);
-Vue.use(Button);
-Vue.use(RadioGroup);
-Vue.use(Radio);
-Vue.use(CellGroup);
-Vue.use(Cell);
-Vue.use(Icon);
-Vue.use(Popup);
-Vue.use(Toast);
-// Vue.use(Field);
-// Vue.use(Tabbar);
-// Vue.use(TabbarItem);
+Vue.use(NavBar)
+  .use(Button)
+  .use(RadioGroup)
+  .use(Radio)
+  .use(CellGroup)
+  .use(Cell)
+  .use(Icon)
+  .use(Popup)
+  .use(Toast)
+  .use(Tabbar)
+  .use(TabbarItem)
+  .use(Checkbox)
+  .use(CheckboxGroup)
+  .use(Field)
+  .use(Picker);
 // Vue.use(Swipe);
 // Vue.use(SwipeItem);
 // Vue.use(Panel);

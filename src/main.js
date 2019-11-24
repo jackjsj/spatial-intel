@@ -1,4 +1,3 @@
-import '@/assets/styles/init.css';
 import '@/assets/styles/utils.css';
 
 import Vue from 'vue';

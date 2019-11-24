@@ -4,27 +4,67 @@ html {
 body {
   font-size: 12px;
 }
-.mc-green {
-  color: #94cfb8;
+p {
+  margin: 0;
 }
-.van-nav-bar__left {
-  .van-icon-arrow-left {
-    color: #161616;
-    font-weight: bolder;
-  }
+.van-tabbar-item__text {
+  font-size: 9px;
+  font-weight: bold;
+}
+.van-tabbar-item__icon img {
+  height: 22px;
+}
+.van-tabbar {
+  height: 50px;
+}
+.card {
+  background: rgba(255, 255, 255, 1);
+  opacity: 1;
+  border-radius: 10px;
+  margin: 10px 15px;
+  box-sizing: border-box;
+}
+.card-content {
+  padding: 15px 20px;
+}
+.c32 {
+  color: #323232;
+}
+.fw600 {
+  font-weight: 600;
+}
+.van-nav-bar {
+  background: #5169e9;
+}
+.van-nav-bar__text {
+  color: #f3f4f9;
+  font-size: 15px;
+  font-weight: 400;
 }
 .van-nav-bar__title {
-  font-size: 24px;
+  color: #f9fcff;
+  font-size: 17px;
+  font-weight: bold;
 }
-.van-button--default {
-  background: #94cfb8;
-  border-radius: 5px;
-  border: none;
-  color: #fff;
-  font-size: 16px;
-  height: 30px;
+.van-nav-bar .van-icon {
+  color: #f9fcff;
 }
-.van-radio__icon--checked .van-icon {
-  background: #30badd;
-  border-color: #30badd;
+.blue-bg {
+  background: linear-gradient(
+    135deg,
+    rgba(135, 168, 252, 1) 0%,
+    rgba(59, 103, 227, 1) 100%
+  );
+}
+.vh100 {
+  height: 100vh;
+}
+.cf2 {
+  color: #f2f2f2;
+}
+.cd8 {
+  color: #d8d8d8;
+}
+.van-nav-bar__text:active{
+  background:unset;
 }
