@@ -14,6 +14,11 @@ const routes = [
     component: () => import('@/views/demo'),
   },
   {
+    path: '/login',
+    name: 'login',
+    component: () => import('@/views/login'),
+  },
+  {
     path: '/add-way',
     name: 'add-way',
     component: () => import('@/views/device-add/add-way'),

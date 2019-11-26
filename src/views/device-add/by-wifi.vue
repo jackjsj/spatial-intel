@@ -60,6 +60,8 @@ export default {
       wifiPwd: '',
     };
   },
+  mounted() {
+  },
   methods: {
     showWifis() {},
     onChange(e, val) {

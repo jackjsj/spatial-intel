@@ -5,7 +5,7 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge" />
     <meta
       name="viewport"
-      content="width=device-width,initial-scale=1.0, maximum-scale=1.0, user-scalable=0;"
+      content="width=device-width,initial-scale=1.0, maximum-scale=1.0, user-scalable=0"
     />
     <link rel="icon" href="<%= BASE_URL %>favicon.ico" />
     <title>空间智能</title>
@@ -18,6 +18,18 @@
       >
     </noscript>
     <div id="app"></div>
+    <script src="./hybird.js"></script>
     <!-- built files will be auto injected -->
+    <script>
+      var plusReady = function (callback) {
+        if (window.plus) {
+            callback();
+        } else {
+            document.addEventListener('plusready', callback);
+        }
+      };
+      plusReady(function () {
+      });
+    </script>
   </body>
 </html>

@@ -15,13 +15,14 @@ import {
   CheckboxGroup,
   Field,
   Picker,
+  Tab,
+  Tabs,
+  Switch,
   Swipe,
   SwipeItem,
   Panel,
   List,
   Search,
-  Tab,
-  Tabs,
   Dialog,
   ActionSheet,
   Slider,
@@ -42,14 +43,16 @@ Vue.use(NavBar)
   .use(Checkbox)
   .use(CheckboxGroup)
   .use(Field)
-  .use(Picker);
+  .use(Picker)
+  .use(Tab)
+  .use(Tabs)
+  .use(Switch);
 // Vue.use(Swipe);
 // Vue.use(SwipeItem);
 // Vue.use(Panel);
 // Vue.use(List);
 // Vue.use(Search);
-// Vue.use(Tab);
-// Vue.use(Tabs);
+
 // Vue.use(Dialog);
 // Vue.use(ActionSheet);
 // Vue.use(Slider);
