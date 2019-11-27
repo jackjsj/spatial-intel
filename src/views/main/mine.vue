@@ -9,6 +9,7 @@
     <div class="flex-auto ln-bg pt10">
       <div
         class="item aic jcb f14 cf2 b"
+        :class="{clickable:!item.showToggle}"
         v-for="item in items"
         :key="item.name">
         <p>{{item.name}}</p>
@@ -89,5 +90,9 @@ export default {
   background: rgba(249, 252, 255, 0.2);
   border: 1px solid rgba(249, 252, 255, 1);
   border-radius: 8px;
+  &.clickable:active {
+    border-style: inset;
+    opacity: 0.8;
+  }
 }
 </style>

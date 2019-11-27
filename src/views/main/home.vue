@@ -1,18 +1,34 @@
 <template>
   <!-- 首页 -->
   <div class="home">
-    <header class="header flex aic pl40">
-      <!-- logo -->
+    <!-- <header class="header flex aic pl40">
       <div class="logo-wrapper mr10">
       </div>
-      <!-- slogan -->
       <div class="lh1 wh b f14 flex-col jcc">
         <p class="mb5">Starting the intelligent life</p>
         <p class="f13">开启智能生活</p>
       </div>
+    </header> -->
+    <header class="header flex aic jcb pl15 pr15">
+      <div class="flex aic">
+        <div class="logo-wrapper mr10">
+        </div>
+        <p class="f15 b cf2">13602333123</p>
+      </div>
+      <div class="header-icon">
+        <van-icon color="#fff" name="shopping-cart" />
+      </div>
     </header>
     <!-- swiper -->
     <div class="card">
+      <van-swipe  indicator-color="white">
+        <van-swipe-item v-for="item in 3"
+          :key="item">
+          <div class="flex aic jcc">
+            <img class="swiper-img" src="https://lanhu.oss-cn-beijing.aliyuncs.com/xda404f6ce-11eb-4220-84b8-0fe5703bf38d" />
+          </div>
+        </van-swipe-item>
+      </van-swipe>
     </div>
     <!-- 新人推荐 -->
     <div class="card">
@@ -110,13 +126,18 @@ export default {
 </script>
 
 <style lang="scss" scoped>
+.header-icon {
+  .van-icon {
+    font-size: 20px;
+  }
+}
 .header {
-  height: 70px;
+  height: 56px;
   background: #5169e9;
 }
 .logo-wrapper {
-  width: 44px;
-  height: 44px;
+  width: 28px;
+  height: 28px;
   background: rgba(255, 255, 255, 1);
   border: 1px solid rgba(112, 112, 112, 1);
   border-radius: 50%;
@@ -180,5 +201,9 @@ export default {
   flex: none;
   border: 1px dashed #ccc;
   box-sizing: border-box;
+}
+.swiper-img {
+  height: 180px;
+  width:100%;
 }
 </style>

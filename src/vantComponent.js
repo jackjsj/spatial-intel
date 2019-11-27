@@ -48,9 +48,9 @@ Vue.use(NavBar)
   .use(Tab)
   .use(Tabs)
   .use(Switch)
-  .use(DatetimePicker);
-// Vue.use(Swipe);
-// Vue.use(SwipeItem);
+  .use(DatetimePicker)
+  .use(Swipe)
+  .use(SwipeItem);
 // Vue.use(Panel);
 // Vue.use(List);
 // Vue.use(Search);
