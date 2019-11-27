@@ -54,6 +54,11 @@ const routes = [
     component: () => import('@/views/device/device-list'),
   },
   {
+    path: '/feedback',
+    name: 'feedback',
+    component: () => import('@/views/mine/feedback'),
+  },
+  {
     path: '/index',
     name: 'index',
     redirect: '/index/home',

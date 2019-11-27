@@ -11,7 +11,8 @@
         class="item aic jcb f14 cf2 b"
         :class="{clickable:!item.showToggle}"
         v-for="item in items"
-        :key="item.name">
+        :key="item.name"
+        @click="onItemClick(item)">
         <p>{{item.name}}</p>
         <van-switch v-if="item.showToggle" v-model="item.checked"
           size="22" active-color="#22DEB1" inactive-color="#EFEFEF" />
@@ -45,7 +46,7 @@ const items = [
   },
   {
     name: '用户反馈',
-    to: '',
+    to: '/feedback',
   },
   {
     name: '关于我们',
@@ -69,6 +70,11 @@ export default {
   methods: {
     onBtnClick() {
       window.showAndroidToast('Hello Android!');
+    },
+    onItemClick(item) {
+      if (item.to) {
+        this.$router.push(item.to);
+      }
     },
   },
 };
