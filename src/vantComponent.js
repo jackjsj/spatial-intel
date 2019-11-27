@@ -18,6 +18,7 @@ import {
   Tab,
   Tabs,
   Switch,
+  DatetimePicker,
   Swipe,
   SwipeItem,
   Panel,
@@ -46,7 +47,8 @@ Vue.use(NavBar)
   .use(Picker)
   .use(Tab)
   .use(Tabs)
-  .use(Switch);
+  .use(Switch)
+  .use(DatetimePicker);
 // Vue.use(Swipe);
 // Vue.use(SwipeItem);
 // Vue.use(Panel);

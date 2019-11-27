@@ -44,6 +44,11 @@ const routes = [
     component: () => import('@/views/device-add/device-info-input'),
   },
   {
+    path: '/auth',
+    name: 'auth',
+    component: () => import('@/views/auth-page/auth'),
+  },
+  {
     path: '/index',
     name: 'index',
     redirect: '/index/home',

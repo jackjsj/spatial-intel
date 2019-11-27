@@ -1,8 +1,8 @@
 <template>
   <!-- 登录与注册 -->
-  <div class="login vh100 flex-col">
+  <div class="login vh100 flex-col ova">
     <!-- logo -->
-    <div class="flex1 flex-col aic header jcc">
+    <div class="flex1 flex-none flex-col aic header jcc">
       <div class="logo-wrapper mb10">
         <img />
       </div>
@@ -57,7 +57,6 @@
                 placeholder="再次输入新密码">
               </van-field>
             </div>
-
             <van-button class="login-btn">
               {{mode === 'forgot' ? '完成并':''}}登录
             </van-button>
@@ -118,7 +117,6 @@
         </van-tab>
       </van-tabs>
     </div>
-
   </div>
 </template>
 
@@ -149,6 +147,9 @@ export default {
 </script>
 
 <style lang="scss" scoped>
+.login{
+  background:#fff;
+}
 .logo-wrapper {
   width: 100px;
   height: 100px;
