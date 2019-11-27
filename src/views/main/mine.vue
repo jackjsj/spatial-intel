@@ -30,7 +30,7 @@ const items = [
   },
   {
     name: '充值',
-    to: '',
+    to: '/add-credit',
   },
   {
     name: '修改密码',
