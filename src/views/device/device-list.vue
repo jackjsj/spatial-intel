@@ -34,7 +34,6 @@
             </div>
             <span class="c32 b">{{btn.name}}</span>
           </div>
-
         </div>
       </div>
     </div>
