@@ -1,19 +1,22 @@
 <template>
   <!-- 主页 -->
-  <div>
-    <router-view class="view" />
-    <van-tabbar v-model="active"
-      active-color="#3D48FF"
-      inactive-color="#323232">
-      <van-tabbar-item v-for="(item,index) in tabbarItems"
-        :key="item.name"
-        :to="item.to">
-        <template #icon>
-          <img :src="active === index ? item.checkedIcon : item.icon" />
-        </template>
-        {{item.name}}
-      </van-tabbar-item>
-    </van-tabbar>
+  <div class="vh100 flex-col">
+    <router-view class="view flex-auto" />
+    <div class="flex-none">
+      <van-tabbar v-model="active"
+        active-color="#3D48FF"
+        inactive-color="#323232"
+        :fixed="false">
+        <van-tabbar-item v-for="(item,index) in tabbarItems"
+          :key="item.name"
+          :to="item.to">
+          <template #icon>
+            <img :src="active === index ? item.checkedIcon : item.icon" />
+          </template>
+          {{item.name}}
+        </van-tabbar-item>
+      </van-tabbar>
+    </div>
   </div>
 </template>
 
@@ -45,7 +48,7 @@ export default {
 
 <style lang="scss" scoped>
 .view {
-  padding-bottom: 50px;
+  // padding-bottom: 50px;
   overflow: auto;
 }
 </style>
