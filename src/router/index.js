@@ -59,6 +59,11 @@ const routes = [
     component: () => import('@/views/mine/feedback'),
   },
   {
+    path: '/change-pwd',
+    name: 'change-pwd',
+    component: () => import('@/views/mine/change-pwd'),
+  },
+  {
     path: '/add-credit',
     name: 'add-credit',
     component: () => import('@/views/mine/add-credit'),

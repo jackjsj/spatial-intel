@@ -34,7 +34,7 @@ const items = [
   },
   {
     name: '修改密码',
-    to: '',
+    to: '/change-pwd',
   },
   {
     name: '使用说明',
