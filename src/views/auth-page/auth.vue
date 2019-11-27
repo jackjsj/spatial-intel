@@ -113,7 +113,7 @@ export default {
       devicePickerVisible: false,
       periodPickerVisible: false,
       isSuccess: true, // 是否成功
-      resultPopupVisible: true,
+      resultPopupVisible: false,
       devices: ['HUAWEI', '小米', '摄像头'],
       minDate: new Date(),
       maxDate: new Date(2029, 10, 1),

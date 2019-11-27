@@ -39,7 +39,8 @@
           </div>
           <span>添加设备</span>
         </div>
-        <div class="flex1 tc flex aic jcc">
+        <div class="flex1 tc flex aic jcc"
+          @click="$router.push('/auth')">
           <div class="add-img add-auth-img flex aic jcc">
             <img src="@/assets/images/add-auth.png" />
           </div>

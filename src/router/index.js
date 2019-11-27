@@ -49,6 +49,11 @@ const routes = [
     component: () => import('@/views/auth-page/auth'),
   },
   {
+    path: '/device-list',
+    name: 'device-list',
+    component: () => import('@/views/device/device-list'),
+  },
+  {
     path: '/index',
     name: 'index',
     redirect: '/index/home',
