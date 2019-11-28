@@ -22,11 +22,24 @@
 </template>
 
 <script>
+import { Toast } from 'vant';
+
 const items = [
   {
     name: '按键遥控振动',
     showToggle: true,
     checked: false,
+    onClick() {
+      if (this.checked) {
+        navigator.vibrate =
+          navigator.vibrate ||
+          navigator.webkitVibrate ||
+          navigator.mozVibrate ||
+          navigator.msVibrate;
+        const isSupportVib = navigator.vibrate([80]);
+        if (!isSupportVib) Toast('当前设备不支持震动');
+      }
+    },
   },
   {
     name: '充值',
@@ -67,14 +80,12 @@ export default {
       items,
     };
   },
+  mounted() {
+  },
   methods: {
-    onBtnClick() {
-      window.showAndroidToast('Hello Android!');
-    },
     onItemClick(item) {
-      if (item.to) {
-        this.$router.push(item.to);
-      }
+      item.to && this.$router.push(item.to);
+      item.onClick && item.onClick();
     },
   },
 };

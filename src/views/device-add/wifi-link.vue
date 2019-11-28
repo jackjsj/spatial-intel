@@ -38,7 +38,17 @@
 </template>
 
 <script>
+const colors = [
+  'rgba(137, 170, 254, 1)',
+  'rgba(86, 126, 239, 1)',
+  'rgba(32, 91, 255, 1)',
+];
 export default {
+  data() {
+    return {
+      colors,
+    };
+  },
   methods: {
     cancel() {},
   },
@@ -66,7 +76,7 @@ export default {
   width: 4px;
   height: 4px;
   border-radius: 50%;
-  flex:none;
+  flex: none;
   &.dot1 {
     background: rgba(137, 170, 254, 1);
   }
@@ -77,6 +87,9 @@ export default {
     background: rgba(32, 91, 255, 1);
   }
 }
+
+// @keyframes
+
 .mb50 {
   margin-bottom: 50px;
 }
