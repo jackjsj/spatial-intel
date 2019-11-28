@@ -18,7 +18,8 @@
         <div class="device-item-header flex jcb mb20">
           <div class="header-title f16 b c32">窗帘{{item}}</div>
           <div class="flex aic header-icon">
-            <van-icon class="mr10" name="wap-nav" />
+            <van-icon class="mr10" name="wap-nav"
+              @click="$router.push('/device-edit')" />
             <van-icon name="delete" />
           </div>
         </div>

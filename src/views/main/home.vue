@@ -11,7 +11,9 @@
     </header> -->
     <header class="header flex aic jcb pl15 pr15">
       <div class="flex aic">
-        <div class="logo-wrapper mr10">
+        <div class="logo-wrapper mr10 flex aic jcc">
+          <van-icon name="contact" color="#4958D9"/>
+          <!-- <van-icon name="smile" color="#4958D9"/> -->
         </div>
         <p class="f15 b cf2">13602333123</p>
       </div>
@@ -21,7 +23,7 @@
     </header>
     <!-- swiper -->
     <div class="card">
-      <van-swipe  indicator-color="white">
+      <van-swipe :autoplay="3000" indicator-color="white">
         <van-swipe-item v-for="item in 3"
           :key="item">
           <div class="flex aic jcc">
@@ -64,11 +66,14 @@
         </div>
       </div>
     </div>
-    <!-- 我的设备 -->
-    <div class="card">
+    <!-- 设备 -->
+    <div class="card"
+      v-for="item in items"
+      :key="item.name">
       <div class="card-content">
-        <div class="my-device-title flex aic jcc mb10">
-          <span class="f14 c32 b">我的设备</span>
+        <div class="my-device-title flex aic jcc mb10"
+          :style="`background:${item.background}`">
+          <span class="f14 c32 b">{{item.name}}</span>
         </div>
         <!-- 根据位置分 -->
         <div>
@@ -81,13 +86,13 @@
             <div
               class="device-type-item aic jcc"
               style="border-width:1px;"
-              v-for="item in myDevices"
-              :key="item.type">
+              v-for="device in myDevices"
+              :key="device.type">
               <div class="icon-wrapper mr10">
               </div>
               <div class="tc fw600">
-                <p class="f13" style="color:#06121F">{{item.type}}</p>
-                <p class="f10" style="color:#8C9198">{{item.num}}</p>
+                <p class="f13" style="color:#06121F">{{device.type}}</p>
+                <p class="f10" style="color:#8C9198">{{device.num}}</p>
               </div>
             </div>
           </div>
@@ -98,6 +103,24 @@
 </template>
 
 <script>
+const items = [
+  {
+    name: '我的设备',
+    background:
+      'linear-gradient(133deg,rgba(27, 223, 86, 0.77) 0%,rgba(222, 255, 236, 0.2) 100%)',
+  },
+  {
+    name: '接收授权的设备',
+    background:
+      'linear-gradient(127deg,rgba(58,230,189,0.88) 0%,rgba(223,255,248,0.2) 100%)',
+  },
+  {
+    name: '已授权的设备',
+    background:
+      'linear-gradient(139deg,rgba(99,123,255,0.56) 0%,rgba(239,241,255,0.38) 100%)',
+  },
+];
+
 const myDevices = [
   {
     type: '窗帘',
@@ -120,6 +143,7 @@ export default {
   data() {
     return {
       myDevices,
+      items,
     };
   },
 };
@@ -141,6 +165,9 @@ export default {
   background: rgba(255, 255, 255, 1);
   border: 1px solid rgba(112, 112, 112, 1);
   border-radius: 50%;
+  .van-icon{
+    font-size:20px;
+  }
 }
 
 .freshman-recommands {
@@ -170,8 +197,10 @@ export default {
   box-shadow: 0px 3px 10px rgba(252, 180, 128, 0.5);
 }
 .my-device-title {
-  width: 80px;
+  display: inline-block;
   height: 32px;
+  line-height: 32px;
+  padding: 0 10px;
   background: linear-gradient(
     133deg,
     rgba(27, 223, 86, 0.77) 0%,
@@ -204,6 +233,6 @@ export default {
 }
 .swiper-img {
   height: 180px;
-  width:100%;
+  width: 100%;
 }
 </style>
