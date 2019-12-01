@@ -24,7 +24,6 @@
               :border="false"
               v-model="wifiName"
               label="WiFi名称："
-              right-icon="arrow-down"
               readonly
               @click="popupVisible = true" />
             <van-field :border="false" v-model="wifiPwd" label="WiFi密码：" />
@@ -38,29 +37,51 @@
           @click="next">下一步</van-button>
       </div>
     </div>
-    <van-popup
+    <!-- <van-popup
       v-model="popupVisible"
       position="bottom"
       :style="{ height: '30%' }">
       <van-picker
         :swipe-duration="100"
         :columns="columns" @change="onChange" />
-    </van-popup>
+    </van-popup> -->
   </div>
 </template>
 
 <script>
+import { Toast } from 'vant';
+
 export default {
   data() {
     return {
       remember: false,
-      popupVisible: false,
-      columns: ['杭州', '宁波', '温州', '嘉兴', '湖州'],
+      // popupVisible: false,
+      // columns: ['杭州', '宁波', '温州', '嘉兴', '湖州'],
       wifiName: '',
       wifiPwd: '',
     };
   },
   mounted() {
+    // 1. 判断是否连接WIFI
+    // 2. 判断WIFI是否为2.4G
+    // 3. 获取当前WIFI名称
+    try {
+      this.wifiName = androidInterface.getSSID();
+    } catch (e) {
+      Toast(e.message);
+    }
+    // 4.
+  },
+  watch: {
+    wifiName(newValue, oldValue) {
+      // 在localstorage中的rememberMap中找newValue对应的值
+      const rememberMap =
+        JSON.parse(window.localStorage.getItem('rememberMap')) || {};
+      this.wifiPwd = rememberMap[newValue] || '';
+      if (rememberMap[newValue]) {
+        this.remember = true;
+      }
+    },
   },
   methods: {
     showWifis() {},
@@ -68,7 +89,25 @@ export default {
       this.wifiName = val;
     },
     next() {
-      this.$router.push('/wifi-link');
+      // 判断wifi名称是否为空
+      if (!this.wifiName.trim()) {
+        Toast('未获取到WIFI信息');
+        return;
+      }
+      // 判断是否记住密码
+      if (this.remember) {
+        const rememberMap =
+          JSON.parse(window.localStorage.getItem('rememberMap')) || {};
+        rememberMap[this.wifiName] = this.wifiPwd;
+        window.localStorage.setItem('rememberMap', JSON.stringify(rememberMap));
+      }
+      try {
+        // Toast(this.wifiPwd);
+        androidInterface.connect(this.wifiPwd);
+      } catch (e) {
+        Toast(e.message);
+      }
+      // this.$router.push('/wifi-link');
     },
   },
 };

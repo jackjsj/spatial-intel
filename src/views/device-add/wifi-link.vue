@@ -24,7 +24,7 @@
         </div>
         <p class="tc mb38">请保证手机尽可能地贴近WIFI路由器</p>
         <p class="tc f13 mb5">正在连接，请稍候...</p>
-        <p class="tc c7c">检测到二代设备</p>
+        <p class="tc c7c" v-show="isDetected">检测到二代设备</p>
         <p class="tc c7c">注册设备中...:1000a9c255</p>
       </div>
       <div class="flex jcc">
@@ -38,7 +38,26 @@
 </template>
 
 <script>
+import Vue from 'vue';
+
+function setData() {
+  console.log(Vue.prototype.wifiLinkComp);
+  setTimeout(() => {
+    Vue.prototype.wifiLinkComp.$data.isDetected = true;
+  }, 2000);
+}
+
 export default {
+  name: 'wifi-link',
+  data() {
+    return {
+      isDetected: false,
+    };
+  },
+  mounted() {
+    Vue.prototype.wifiLinkComp = this;
+    setData();
+  },
   methods: {
     cancel() {},
   },
@@ -66,7 +85,7 @@ export default {
   width: 4px;
   height: 4px;
   border-radius: 50%;
-  flex:none;
+  flex: none;
   &.dot1 {
     background: rgba(137, 170, 254, 1);
   }
