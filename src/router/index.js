@@ -54,6 +54,11 @@ const routes = [
     component: () => import('@/views/device/device-list'),
   },
   {
+    path: '/device-edit',
+    name: 'device-edit',
+    component: () => import('@/views/device/device-edit'),
+  },
+  {
     path: '/feedback',
     name: 'feedback',
     component: () => import('@/views/mine/feedback'),

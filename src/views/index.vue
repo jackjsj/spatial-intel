@@ -9,7 +9,8 @@
         :fixed="false">
         <van-tabbar-item v-for="(item,index) in tabbarItems"
           :key="item.name"
-          :to="item.to">
+          :to="item.to"
+          replace>
           <template #icon>
             <img :src="active === index ? item.checkedIcon : item.icon" />
           </template>

@@ -15,7 +15,8 @@ module.exports = {
     'object-curly-newline': ['off'],
     'global-require': ['off'],
     'arrow-parens': ['off'],
-    'import/prefer-default-export':['off']
+    'import/prefer-default-export':['off'],
+    'no-unused-expressions':['off']
   },
   parserOptions: {
     parser: 'babel-eslint',

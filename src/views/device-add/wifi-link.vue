@@ -40,17 +40,22 @@
 <script>
 import Vue from 'vue';
 
+const colors = [
+  'rgba(137, 170, 254, 1)',
+  'rgba(86, 126, 239, 1)',
+  'rgba(32, 91, 255, 1)',
+];
 function setData() {
   console.log(Vue.prototype.wifiLinkComp);
   setTimeout(() => {
     Vue.prototype.wifiLinkComp.$data.isDetected = true;
   }, 2000);
 }
-
 export default {
   name: 'wifi-link',
   data() {
     return {
+      colors,
       isDetected: false,
     };
   },
@@ -96,6 +101,9 @@ export default {
     background: rgba(32, 91, 255, 1);
   }
 }
+
+// @keyframes
+
 .mb50 {
   margin-bottom: 50px;
 }

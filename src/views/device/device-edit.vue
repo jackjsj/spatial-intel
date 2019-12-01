@@ -1,0 +1,44 @@
+<template>
+  <div>
+    <van-nav-bar
+      class="flex-none"
+      style="border-bottom:1px solid #EBEDFF"
+      :title="'编辑'"
+      left-text="返回"
+      right-text="完成"
+      left-arrow
+      :border="false"
+      @click-left="$router.back()" />
+    <div class="mt10">
+      <van-field
+        v-model="deviceName"
+        label="名称备注："
+        placeholder="" />
+      <van-field
+        v-model="location"
+        label="位置备注："
+        readonly
+        placeholder="" />
+      <van-field
+        v-model="deviceId"
+        label="设备号："
+        readonly
+        placeholder="" />
+    </div>
+  </div>
+</template>
+
+<script>
+export default {
+  data() {
+    return {
+      deviceName: '',
+      location: '',
+      deviceId: '',
+    };
+  },
+};
+</script>
+
+<style lang="scss" scoped>
+</style>
