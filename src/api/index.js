@@ -66,3 +66,15 @@ export function updateDeviceStatus(params, at) {
     },
   });
 }
+
+export function addWifiDevice(params, at) {
+  Object.assign(params, {
+    nonce: 'asbsedwq',
+    version: 8,
+  });
+  return post('/api/user/device/add', params, {
+    headers: {
+      Authorization: `Bearer ${at}`,
+    },
+  });
+}

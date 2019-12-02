@@ -18,6 +18,13 @@ module.exports = {
           '^/dispatch': '/dispatch',
         },
       },
+      '/ap': {
+        target: 'http://192.168.31.120/',
+        changeOrigin: true,
+        pathRewrite: {
+          '^/ap': '/ap',
+        },
+      },
     },
   },
 };

@@ -24,12 +24,9 @@
               :border="false"
               v-model="deviceName"
               label="设备名称："
-              right-icon="arrow-down"
-              readonly
-              placeholder="a9c255"
-              @click="popupVisible = true" />
+              :placeholder="addingDeviceInfo.deviceid" />
             <van-field :border="false" v-model="location" label="设备位置：" />
-            <van-field :border="false" v-model="deviceId" label="设备号：" />
+            <van-field :border="false" v-model="addingDeviceInfo.deviceid" label="设备号：" readonly />
           </van-cell-group>
         </div>
       </div>
@@ -44,17 +41,55 @@
 </template>
 
 <script>
+import { mapState } from 'vuex';
+import { login, addWifiDevice } from '@/api/';
+import axios from 'axios';
+
+function getTs() {
+  return Math.round(new Date().getTime() / 1000);
+}
 
 export default {
   data() {
     return {
       deviceName: '',
       location: '',
-      deviceId: '',
     };
   },
+  computed: {
+    ...mapState(['addingDeviceInfo']),
+  },
   methods: {
-    addDevice() {},
+    async addDevice() {
+      const loginInfo = await login({
+        password: 'book1548',
+        phoneNumber: '+8613730995961',
+        appid: 'Jz40dL2jj4GCaqorkleliPvgT2wDyInZ',
+        ts: getTs(),
+      });
+      addWifiDevice(
+        {
+          ...this.addingDeviceInfo,
+          name: this.deviceName,
+          appid: 'Jz40dL2jj4GCaqorkleliPvgT2wDyInZ',
+          ts: getTs(),
+        },
+        loginInfo.at,
+      ).then(resp => {
+        console.log(resp);
+
+        // 添加设备后再调ap
+        // androidInterface.post_ap();
+        setTimeout(() => {
+          axios.post('/ap', {
+            port: 443,
+            serverName: 'cn-disp.coolkit.cc',
+            password: 'Hzh1234!',
+            ssid: 'Xiaomi_BE10',
+          });
+        }, 5000);
+      });
+    },
   },
 };
 </script>

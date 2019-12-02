@@ -30,6 +30,8 @@ import {
   Uploader,
 } from 'vant';
 
+window.Toast = Toast;
+
 Vue.use(NavBar)
   .use(Button)
   .use(RadioGroup)

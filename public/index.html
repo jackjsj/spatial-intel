@@ -22,15 +22,14 @@
     <script src="./hybird.js"></script>
     <!-- built files will be auto injected -->
     <script>
-      var plusReady = function (callback) {
+      var plusReady = function(callback) {
         if (window.plus) {
-            callback();
+          callback();
         } else {
-            document.addEventListener('plusready', callback);
+          document.addEventListener('plusready', callback);
         }
       };
-      plusReady(function () {
-      });
+      plusReady(function() {});
     </script>
   </body>
 </html>
