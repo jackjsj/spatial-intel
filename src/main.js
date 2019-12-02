@@ -8,8 +8,8 @@ import store from './store';
 import './vantComponent';
 import '@/assets/styles/override.scss';
 
-Vue.config.productionTip = false;
 const vConsole = new VConsole();
+Vue.config.productionTip = false;
 new Vue({
   router,
   store,

@@ -107,7 +107,7 @@ export default {
       } catch (e) {
         Toast(e.message);
       }
-      // this.$router.push('/wifi-link');
+      this.$router.push('/wifi-link');
     },
   },
 };
