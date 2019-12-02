@@ -80,8 +80,7 @@ export default {
       items,
     };
   },
-  mounted() {
-  },
+  mounted() {},
   methods: {
     onItemClick(item) {
       item.to && this.$router.push(item.to);

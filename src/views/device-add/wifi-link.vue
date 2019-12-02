@@ -24,8 +24,8 @@
         </div>
         <p class="tc mb38">请保证手机尽可能地贴近WIFI路由器</p>
         <p class="tc f13 mb5">正在连接，请稍候...</p>
-        <p class="tc c7c" v-show="isDetected">检测到二代设备</p>
-        <p class="tc c7c">注册设备中...:1000a9c255</p>
+        <p class="tc c7c" id="isDetected" hidden>检测到二代设备</p>
+        <p class="tc c7c" hidden>注册设备中...:1000a9c255</p>
       </div>
       <div class="flex jcc">
         <van-button class="cancel-btn"
@@ -39,30 +39,14 @@
 
 <script>
 import Vue from 'vue';
+import { Toast } from 'vant';
 
-const colors = [
-  'rgba(137, 170, 254, 1)',
-  'rgba(86, 126, 239, 1)',
-  'rgba(32, 91, 255, 1)',
-];
-function setData() {
-  console.log(Vue.prototype.wifiLinkComp);
-  setTimeout(() => {
-    Vue.prototype.wifiLinkComp.$data.isDetected = true;
-  }, 2000);
-}
 export default {
   name: 'wifi-link',
   data() {
-    return {
-      colors,
-      isDetected: false,
-    };
+    return {};
   },
-  mounted() {
-    Vue.prototype.wifiLinkComp = this;
-    setData();
-  },
+  mounted() {},
   methods: {
     cancel() {},
   },
@@ -91,18 +75,32 @@ export default {
   height: 4px;
   border-radius: 50%;
   flex: none;
+  transition: all 0.3s;
   &.dot1 {
     background: rgba(137, 170, 254, 1);
+    animation: colorChange 0.6s ease 1s infinite;
   }
   &.dot2 {
     background: rgba(86, 126, 239, 1);
+    animation: colorChange 0.6s ease 1.2s infinite;
   }
   &.dot3 {
     background: rgba(32, 91, 255, 1);
+    animation: colorChange 0.6s ease 1.4s infinite;
   }
 }
 
-// @keyframes
+@keyframes colorChange {
+  0% {
+    background: rgba(137, 170, 254, 1);
+  }
+  50% {
+    background: rgba(86, 126, 239, 1);
+  }
+  100% {
+    background: rgba(32, 91, 255, 1);
+  }
+}
 
 .mb50 {
   margin-bottom: 50px;
