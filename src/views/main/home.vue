@@ -15,7 +15,7 @@
           <van-icon name="contact" color="#4958D9" />
           <!-- <van-icon name="smile" color="#4958D9"/> -->
         </div>
-        <p class="f15 b cf2">空间智慧</p>
+        <p class="f15 b cf2">空间智能</p>
       </div>
       <div class="header-icon">
         <van-icon color="#fff" name="shopping-cart" />
