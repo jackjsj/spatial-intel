@@ -73,7 +73,6 @@
 
 <script>
 import { mapState } from 'vuex';
-import { login, addWifiDevice } from '@/api/';
 
 function getTs() {
   return Math.round(new Date().getTime() / 1000);
@@ -97,27 +96,27 @@ export default {
   methods: {
     async addDevice() {
       this.isLoading = true;
-      const loginInfo = await login({
-        password: 'book1548',
-        phoneNumber: '+8613730995961',
-        appid: 'Jz40dL2jj4GCaqorkleliPvgT2wDyInZ',
-        ts: getTs(),
-      });
-      addWifiDevice(
-        {
-          ...this.addingDeviceInfo,
-          name: this.deviceName,
-          appid: 'Jz40dL2jj4GCaqorkleliPvgT2wDyInZ',
-          ts: getTs(),
-        },
-        loginInfo.at,
-      ).then(resp => {
-        console.log(resp);
-        // 添加设备后再调ap
-        androidInterface.post_ap();
-        this.isLoading = false;
-        this.resultPopupVisible = true;
-      });
+      // const loginInfo = await login({
+      //   password: 'book1548',
+      //   phoneNumber: '+8613730995961',
+      //   appid: 'Jz40dL2jj4GCaqorkleliPvgT2wDyInZ',
+      //   ts: getTs(),
+      // });
+      // addWifiDevice(
+      //   {
+      //     ...this.addingDeviceInfo,
+      //     name: this.deviceName,
+      //     appid: 'Jz40dL2jj4GCaqorkleliPvgT2wDyInZ',
+      //     ts: getTs(),
+      //   },
+      //   loginInfo.at,
+      // ).then(resp => {
+      //   console.log(resp);
+      //   // 添加设备后再调ap
+      //   androidInterface.post_ap();
+      //   this.isLoading = false;
+      //   this.resultPopupVisible = true;
+      // });
     },
     onConfirm() {
       // 确定后返回首页

@@ -9,11 +9,6 @@ const routes = [
     redirect: '/index',
   },
   {
-    path: '/demo',
-    name: 'demo',
-    component: () => import('@/views/demo'),
-  },
-  {
     path: '/login',
     name: 'login',
     component: () => import('@/views/login'),

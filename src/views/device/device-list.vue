@@ -42,6 +42,8 @@
 </template>
 
 <script>
+import { mapState } from 'vuex';
+
 const controls = [
   {
     name: '开启',
@@ -69,6 +71,9 @@ export default {
     return {
       controls,
     };
+  },
+  computed: {
+    ...mapState(['deviceList']),
   },
 };
 </script>

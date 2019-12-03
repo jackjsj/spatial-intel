@@ -10,7 +10,7 @@
       left-arrow
       :border="false"
       @click-right="auth"
-      @click-left="$router.back()" />
+      @click-left="$router.push('/')" />
     <div class="mt10">
       <van-field
         v-model="authTo"

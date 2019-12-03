@@ -87,7 +87,8 @@
               class="device-type-item aic jcc"
               style="border-width:1px;"
               v-for="device in myDevices"
-              :key="device.type">
+              :key="device.type"
+              @click="onTypeClick(device)">
               <div class="icon-wrapper mr10">
               </div>
               <div class="tc fw600">
@@ -103,9 +104,12 @@
 </template>
 
 <script>
+import _ from 'lodash';
+import { mapMutations } from 'vuex';
 import sample1 from '@/assets/images/sample1.png';
 import sample2 from '@/assets/images/sample2.png';
 import sample3 from '@/assets/images/sample3.png';
+import { deviceList } from '@/api/';
 
 const items = [
   {
@@ -113,16 +117,16 @@ const items = [
     background:
       'linear-gradient(133deg,rgba(27, 223, 86, 0.77) 0%,rgba(222, 255, 236, 0.2) 100%)',
   },
-  {
-    name: '接收授权的设备',
-    background:
-      'linear-gradient(127deg,rgba(58,230,189,0.88) 0%,rgba(223,255,248,0.2) 100%)',
-  },
-  {
-    name: '已授权的设备',
-    background:
-      'linear-gradient(139deg,rgba(99,123,255,0.56) 0%,rgba(239,241,255,0.38) 100%)',
-  },
+  // {
+  //   name: '接收授权的设备',
+  //   background:
+  //     'linear-gradient(127deg,rgba(58,230,189,0.88) 0%,rgba(223,255,248,0.2) 100%)',
+  // },
+  // {
+  //   name: '已授权的设备',
+  //   background:
+  //     'linear-gradient(139deg,rgba(99,123,255,0.56) 0%,rgba(239,241,255,0.38) 100%)',
+  // },
 ];
 
 const myDevices = [
@@ -146,12 +150,37 @@ const myDevices = [
 export default {
   data() {
     return {
-      myDevices,
+      myDevices: [],
       items,
       sample1,
       sample2,
       sample3,
     };
+  },
+  mounted() {
+    // 获取设备列表
+    deviceList().then(resp => {
+      const devices = resp.result.devicelist.map(dev => ({
+        type: dev.extra.extra.ui,
+        deviceid: dev.deviceid,
+      }));
+      const devsGroupByType = _.groupBy(devices, 'type');
+      console.log(devsGroupByType);
+      for (const item in devsGroupByType) {
+        this.myDevices.push({
+          type: item,
+          num: devsGroupByType[item].length,
+          children: devsGroupByType[item],
+        });
+      }
+    });
+  },
+  methods: {
+    ...mapMutations(['setDeviceList']),
+    onTypeClick(device) {
+      const devices = device.children;
+      this.setDeviceList(devices);
+    },
   },
 };
 </script>

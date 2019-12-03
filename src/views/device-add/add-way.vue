@@ -8,7 +8,7 @@
       left-text="返回"
       left-arrow
       :border="false"
-      @click-left="$router.back()" />
+      @click-left="$router.push('/')" />
     <div class="flex-auto blue-bg">
       <div>
         <div
@@ -63,6 +63,7 @@ export default {
       addWays,
     };
   },
+  methods: {},
 };
 </script>
 
