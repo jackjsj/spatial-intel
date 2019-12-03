@@ -4,7 +4,7 @@ const instance = axios.create({
   headers: {
     'Content-Type': 'application/json',
   },
-  baseURL: '/kuzhai',
+  baseURL: '/spaceIngelligent/kuzhai',
   timeout: 60000,
 });
 // 添加响应拦截器

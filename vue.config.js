@@ -4,11 +4,12 @@ module.exports = {
   lintOnSave: true,
   devServer: {
     proxy: {
-      '/kuzhai': {
-        target: 'http://mj001.free.idcfengye.com/',
+      '/spaceIngelligent': {
+        // target: 'http://mj001.free.idcfengye.com/',
+        target: 'http://baota.qdaoliqi.cn:8080/',
         changeOrigin: true,
         pathRewrite: {
-          '^/kuzhai': '/kuzhai',
+          '^/spaceIngelligent': '/spaceIngelligent',
         },
       },
     },

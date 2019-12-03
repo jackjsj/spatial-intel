@@ -8,7 +8,7 @@
       left-text="返回"
       left-arrow
       :border="false"
-      @click-left="$router.back()" />
+      @click-left="$router.push('/')" />
     <div class="flex-auto blue-bg">
       <!-- 输入wifi名称和密码 -->
       <div class="wifi-box flex-col jcc">

@@ -77,20 +77,20 @@
         </div>
         <!-- 根据位置分 -->
         <div>
-          <div class="flex aic mb10">
+          <!-- <div class="flex aic mb10">
             <img class="loc-img mr10" src="@/assets/images/loc-1.png" />
             <p class="c32 b f16">公司</p>
-          </div>
+          </div> -->
           <div class="flex flex-wrap">
             <!-- 根据设备类型分 -->
             <div
-              class="device-type-item aic jcc"
+              class="device-type-item aic jcc poi"
               style="border-width:1px;"
               v-for="device in myDevices"
               :key="device.type"
               @click="onTypeClick(device)">
-              <div class="icon-wrapper mr10">
-              </div>
+              <!-- <div class="icon-wrapper mr10">
+              </div> -->
               <div class="tc fw600">
                 <p class="f13" style="color:#06121F">{{device.type}}</p>
                 <p class="f10" style="color:#8C9198">{{device.num}}</p>
@@ -160,12 +160,12 @@ export default {
   mounted() {
     // 获取设备列表
     deviceList().then(resp => {
-      const devices = resp.result.devicelist.map(dev => ({
+      const devices = resp.result.map(dev => ({
         type: dev.extra.extra.ui,
         deviceid: dev.deviceid,
+        name:dev.name
       }));
       const devsGroupByType = _.groupBy(devices, 'type');
-      console.log(devsGroupByType);
       for (const item in devsGroupByType) {
         this.myDevices.push({
           type: item,
@@ -180,6 +180,7 @@ export default {
     onTypeClick(device) {
       const devices = device.children;
       this.setDeviceList(devices);
+      this.$router.push('/device-list');
     },
   },
 };
