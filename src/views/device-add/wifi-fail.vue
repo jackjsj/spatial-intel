@@ -37,7 +37,9 @@
 <script>
 export default {
   methods: {
-    retry() {},
+    retry() {
+      this.$router.push('/by-wifi');
+    },
   },
 };
 </script>

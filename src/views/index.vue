@@ -40,7 +40,7 @@ const tabbarItems = [
 export default {
   data() {
     return {
-      active: 0,
+      active: this.$route.path === '/index/home' ? 0 : 1,
       tabbarItems,
     };
   },

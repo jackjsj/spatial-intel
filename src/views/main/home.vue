@@ -12,10 +12,10 @@
     <header class="header flex aic jcb pl15 pr15">
       <div class="flex aic">
         <div class="logo-wrapper mr10 flex aic jcc">
-          <van-icon name="contact" color="#4958D9"/>
+          <van-icon name="contact" color="#4958D9" />
           <!-- <van-icon name="smile" color="#4958D9"/> -->
         </div>
-        <p class="f15 b cf2">13602333123</p>
+        <p class="f15 b cf2">空间智慧</p>
       </div>
       <div class="header-icon">
         <van-icon color="#fff" name="shopping-cart" />
@@ -27,7 +27,7 @@
         <van-swipe-item v-for="item in 3"
           :key="item">
           <div class="flex aic jcc">
-            <img class="swiper-img" src="https://lanhu.oss-cn-beijing.aliyuncs.com/xda404f6ce-11eb-4220-84b8-0fe5703bf38d" />
+            <img class="swiper-img" :src="sample3" />
           </div>
         </van-swipe-item>
       </van-swipe>
@@ -38,10 +38,10 @@
         <p class="f14 b mb10">新人推荐</p>
         <div class="freshman-recommands flex aic ova">
           <div class="mr18">
-            <img src="https://lanhu.oss-cn-beijing.aliyuncs.com/xd67359853-b16b-40ce-aef6-dce867412c6f" />
+            <img :src="sample1" />
           </div>
           <div>
-            <img src="https://lanhu.oss-cn-beijing.aliyuncs.com/xd90d6aba8-f211-4772-a92f-f943822fa30c" />
+            <img :src="sample2" />
           </div>
         </div>
       </div>
@@ -103,6 +103,10 @@
 </template>
 
 <script>
+import sample1 from '@/assets/images/sample1.png';
+import sample2 from '@/assets/images/sample2.png';
+import sample3 from '@/assets/images/sample3.png';
+
 const items = [
   {
     name: '我的设备',
@@ -144,6 +148,9 @@ export default {
     return {
       myDevices,
       items,
+      sample1,
+      sample2,
+      sample3,
     };
   },
 };
@@ -165,8 +172,8 @@ export default {
   background: rgba(255, 255, 255, 1);
   border: 1px solid rgba(112, 112, 112, 1);
   border-radius: 50%;
-  .van-icon{
-    font-size:20px;
+  .van-icon {
+    font-size: 20px;
   }
 }
 

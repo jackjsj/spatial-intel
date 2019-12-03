@@ -25,7 +25,7 @@
               v-model="deviceName"
               label="设备名称："
               :placeholder="addingDeviceInfo.deviceid" />
-            <van-field :border="false" v-model="location" label="设备位置：" />
+            <van-field :border="false" v-model="location" label="设备位置：" readonly />
             <van-field :border="false" v-model="addingDeviceInfo.deviceid" label="设备号：" readonly />
           </van-cell-group>
         </div>
@@ -33,17 +33,47 @@
       <div class="flex jcc">
         <van-button class="cancel-btn"
           style="border-width:1px;"
+          :loading="isLoading"
+          loading-text="正在添加"
           @click="addDevice">完成添加</van-button>
       </div>
     </div>
+    <!-- 添加结果弹框 -->
+    <van-popup
+      class="result-popup"
+      :close-on-click-overlay="false"
+      v-model="resultPopupVisible">
+      <div class="flex-col aic pt30 pb30">
+        <div class="flex-col aic mb35">
+          <img
+            src="@/assets/images/success.png"
+            class="popup-icon mb15" />
+          <p class="f14 c32 fw400 mb20">添加成功</p>
+          <p class="f12 c32 fw400 mb40">设备正在连接WIFI，请稍等...</p>
+        </div>
+        <div class="flex-col">
+          <div class="mb10">
+            <van-button size="small"
+              style="border-width:1px;color:#205BFF; border-color:#205BFF"
+              class="popup-btn"
+              @click="onConfirm">确定</van-button>
+          </div>
+          <div>
+            <van-button size="small"
+              style="border-width:1px;color:#205BFF; border-color:#205BFF"
+              class="popup-btn"
+              @click="addAgain">继续添加</van-button>
+          </div>
 
+        </div>
+      </div>
+    </van-popup>
   </div>
 </template>
 
 <script>
 import { mapState } from 'vuex';
 import { login, addWifiDevice } from '@/api/';
-import axios from 'axios';
 
 function getTs() {
   return Math.round(new Date().getTime() / 1000);
@@ -53,14 +83,20 @@ export default {
   data() {
     return {
       deviceName: '',
-      location: '',
+      location: '公司',
+      resultPopupVisible: false,
+      isLoading: false,
     };
+  },
+  mounted() {
+    this.deviceName = this.addingDeviceInfo.deviceid;
   },
   computed: {
     ...mapState(['addingDeviceInfo']),
   },
   methods: {
     async addDevice() {
+      this.isLoading = true;
       const loginInfo = await login({
         password: 'book1548',
         phoneNumber: '+8613730995961',
@@ -77,24 +113,41 @@ export default {
         loginInfo.at,
       ).then(resp => {
         console.log(resp);
-
         // 添加设备后再调ap
-        // androidInterface.post_ap();
-        setTimeout(() => {
-          axios.post('/ap', {
-            port: 443,
-            serverName: 'cn-disp.coolkit.cc',
-            password: 'Hzh1234!',
-            ssid: 'Xiaomi_BE10',
-          });
-        }, 5000);
+        androidInterface.post_ap();
+        this.isLoading = false;
+        this.resultPopupVisible = true;
       });
+    },
+    onConfirm() {
+      // 确定后返回首页
+      this.$router.replace('/');
+    },
+    addAgain() {
+      // 继续添加
+      this.$router.push('/by-wifi');
     },
   },
 };
 </script>
 
 <style lang="scss" scoped>
+.popup-icon {
+  width: 44px;
+  height: 44px;
+}
+.popup-btn {
+  border: 1px solid rgba(72, 10, 197, 1);
+  opacity: 1;
+  border-radius: 5px;
+  color: rgba(72, 10, 197, 1);
+  width: 156px;
+}
+.result-popup {
+  width: 220px;
+  box-shadow: 0px 5px 20px rgba(225, 227, 233, 0.6);
+  border-radius: 5px;
+}
 .wifi-box {
   height: 299px;
   background: rgba(249, 252, 255, 1);

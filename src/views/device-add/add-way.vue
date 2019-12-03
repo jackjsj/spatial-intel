@@ -43,18 +43,18 @@ const addWays = [
     icon: require('@/assets/images/by-wifi.png'),
     to: '/by-wifi',
   },
-  {
-    name: '扫码添加',
-    desc: '适用于GSM类设备和附带二维码设备',
-    icon: require('@/assets/images/by-scan.png'),
-    to: '',
-  },
-  {
-    name: '声波添加',
-    desc: '适用于声波配对类设备',
-    icon: require('@/assets/images/by-wave.png'),
-    to: '',
-  },
+  // {
+  //   name: '扫码添加',
+  //   desc: '适用于GSM类设备和附带二维码设备',
+  //   icon: require('@/assets/images/by-scan.png'),
+  //   to: '',
+  // },
+  // {
+  //   name: '声波添加',
+  //   desc: '适用于声波配对类设备',
+  //   icon: require('@/assets/images/by-wave.png'),
+  //   to: '',
+  // },
 ];
 
 export default {

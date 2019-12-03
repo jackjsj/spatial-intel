@@ -25,7 +25,7 @@
         <p class="tc mb38">请保证手机尽可能地贴近WIFI路由器</p>
         <p class="tc f13 mb5">正在连接，请稍候...</p>
         <p class="tc c7c" v-show="isDetected">检测到二代设备</p>
-        <p class="tc c7c" v-show="isAdding">注册设备中...:{{deviceInfo.deviceId}}</p>
+        <p class="tc c7c" v-show="isAdding">注册设备中...:{{deviceInfo.deviceid}}</p>
       </div>
       <div class="flex jcc">
         <van-button class="cancel-btn"
@@ -50,6 +50,7 @@ export default {
       isAdding: false,
       deviceInfo: {},
       finished: false,
+      isFailed: false,
     };
   },
   watch: {
@@ -58,6 +59,11 @@ export default {
     },
     deviceInfo(newValue, oldValue) {
       this.setAddingDeviceInfo(newValue);
+    },
+    isFailed(newValue) {
+      if (newValue) {
+        this.$router.push('/wifi-fail');
+      }
     },
   },
   mounted() {
