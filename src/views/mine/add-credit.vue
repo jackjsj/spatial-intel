@@ -8,7 +8,7 @@
       left-text="返回"
       left-arrow
       :border="false"
-      @click-left="$router.back()" />
+      @click-left="$router.push('/index/mine')" />
     <div>
       <div class="header mb15">
         <div class="user-info flex">

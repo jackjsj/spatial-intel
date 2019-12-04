@@ -16,10 +16,10 @@
         :key="item.deviceid">
         <!-- 列表项头部 -->
         <div class="device-item-header flex jcb mb20">
-          <div class="header-title f16 b c32">{{item.name}}--{{item.online?'在线':'离线'}}</div>
+          <div class="header-title f16 b c32">{{item.name}}--{{item.online?'在线':'离线'}}--{{item.switchStatus}}</div>
           <div class="flex aic header-icon">
             <van-icon class="mr10" name="wap-nav"
-              @click="$router.push('/device-edit')" />
+              @click="$router.push(`/device-edit?deviceid=${item.deviceid}&deviceName=${item.name}`)" />
             <van-icon name="delete"
               @click="deleteDevice(item.deviceid)" />
           </div>
@@ -44,7 +44,8 @@
 
 <script>
 import { mapState } from 'vuex';
-import { deleteOne, webSocketAp } from '@/api/';
+import { Toast, Dialog } from 'vant';
+import { deleteOne, webSocketAp, getOneByDeviceid } from '@/api/';
 
 const controls = [
   {
@@ -87,7 +88,6 @@ export default {
   mounted() {
     // 获取分配服务
     webSocketAp().then(resp => {
-      console.log(resp);
       const { apikey, appid, at, device } = resp.result;
       const { domain, port } = device;
       this.wsOptions = {
@@ -97,29 +97,25 @@ export default {
         apikey,
         appid,
       };
-      // this.connectWebsocket({
-      //   domain: 'cn-pconnect2.coolkit.cc',
-      //   port: 8080,
-      //   at: '701cf2909afb848a344b9d662bf970b55a9b6b76',
-      //   apikey: '8b501a9c8b0387bb68dfb36ea766dce62a3219a1',
-      //   appid: 'Jz40dL2jj4GCaqorkleliPvgT2wDyInZ',
-      // });
       this.connectWebsocket(this.wsOptions);
     });
   },
   methods: {
     deleteDevice(deviceid) {
-      deleteOne(deviceid).then(resp => {
-        Toast('删除成功');
+      // 提示
+      Dialog.confirm({
+        message: '确定要删除设备吗？',
+      }).then(() => {
+        deleteOne(deviceid).then(() => {
+          // Toast('删除成功');
+        });
       });
     },
     connectWebsocket(options) {
-      const vm = this;
       const { domain, port, at, apikey, appid } = options;
       this.apikey = apikey;
       const ws = new WebSocket(`wss://${domain}:${port}/api/ws`);
       this.ws = ws;
-      // !wss://cn-pconnect2.coolkit.cc:8080/api/ws
       // 监听连接成功
       ws.onopen = () => {
         console.log('连接服务端WebSocket成功');
@@ -139,18 +135,25 @@ export default {
           }),
         );
         // 遍历查询设备状态
-        vm.deviceList.forEach(dev => {
-          vm.getDeviceStatus(dev.deviceid);
+        this.deviceList.forEach(dev => {
+          getOneByDeviceid(dev.deviceid).then(resp => {
+            dev.online = resp.result.online;
+          });
+          this.getDeviceStatus(dev.deviceid);
         });
       };
       // 监听服务端消息(接收消息)
       ws.onmessage = msg => {
         const message = JSON.parse(msg.data);
+        // TODO: 这里用http请求设备当前状态，这样就不会触发onmessage了
+        if (message.params === undefined) {
+          this.getDeviceStatus(message.deviceid);
+        }
         if (message.action === 'sysmsg') {
           // 说明设备在线离线发生变化
           const { deviceid, params } = message;
           const { online } = params;
-          const targetDevice = vm.deviceList.filter(
+          const targetDevice = this.deviceList.filter(
             dev => dev.deviceid === deviceid,
           )[0];
           if (targetDevice) {
@@ -161,7 +164,7 @@ export default {
           // 说明设备状态更新
           const { deviceid, params } = message;
           const switchStatus = params.switch === 'on' ? '已开启' : '已关闭';
-          const targetDevice = vm.deviceList.filter(
+          const targetDevice = this.deviceList.filter(
             dev => dev.deviceid === deviceid,
           )[0];
           if (targetDevice) {
@@ -171,7 +174,7 @@ export default {
         if (message.params && message.params.switch) {
           const { deviceid, params } = message;
           const switchStatus = params.switch === 'on' ? '已开启' : '已关闭';
-          const targetDevice = vm.deviceList.filter(
+          const targetDevice = this.deviceList.filter(
             dev => dev.deviceid === deviceid,
           )[0];
           if (targetDevice) {
@@ -188,7 +191,6 @@ export default {
       // 监听连接关闭
       ws.onclose = () => {
         console.log('连接关闭');
-        this.connectWebsocket(this.wsOptions);
       };
     },
     onBtnClick(item, btn) {
@@ -206,6 +208,8 @@ export default {
             userAgent: 'app',
           }),
         );
+      } else {
+        Toast('正在连接设备，请稍候...');
       }
     },
     getDeviceStatus(deviceid) {
@@ -217,25 +221,17 @@ export default {
             apikey: this.apikey, // 用户的apikey
             sequence: +new Date(),
             ts: 0,
-            from: 'device',
-            userAgent: 'device',
+            from: 'app',
+            userAgent: 'app',
           }),
         );
+      } else {
+        Toast('正在连接设备，请稍候...');
       }
     },
-    // isDeviceOnline(deviceid) {
-    //   if (this.linking) {
-    //     this.ws.send(
-    //       JSON.stringify({
-    //         action: 'sysmsg',
-    //         deviceid,
-    //         apikey: this.apikey, // 用户的apikey
-    //         ts: Math.round(new Date().getTime() / 1000),
-    //         // params: { online: true },
-    //       }),
-    //     );
-    //   }
-    // },
+  },
+  beforeDestroy() {
+    this.ws.close();
   },
 };
 </script>
