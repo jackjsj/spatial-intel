@@ -8,7 +8,7 @@
       left-text="返回"
       left-arrow
       :border="false"
-      @click-left="$router.back()" />
+      @click-left="$router.push('/')" />
     <div>
       <div
         class="device-item"
@@ -16,7 +16,7 @@
         :key="item.deviceid">
         <!-- 列表项头部 -->
         <div class="device-item-header flex jcb mb20">
-          <div class="header-title f16 b c32">{{item.name}}</div>
+          <div class="header-title f16 b c32">{{item.name}}--{{item.online?'在线':'离线'}}</div>
           <div class="flex aic header-icon">
             <van-icon class="mr10" name="wap-nav"
               @click="$router.push('/device-edit')" />
@@ -114,6 +114,7 @@ export default {
       });
     },
     connectWebsocket(options) {
+      const vm = this;
       const { domain, port, at, apikey, appid } = options;
       this.apikey = apikey;
       const ws = new WebSocket(`wss://${domain}:${port}/api/ws`);
@@ -123,19 +124,6 @@ export default {
       ws.onopen = () => {
         console.log('连接服务端WebSocket成功');
         this.linking = true;
-        console.log(
-          JSON.stringify({
-            action: 'userOnline',
-            at,
-            apikey,
-            appid,
-            nonce: 'absfefds',
-            ts: Math.round(new Date().getTime() / 1000),
-            userAgent: 'app',
-            sequence: +new Date(),
-            version: 8,
-          }),
-        );
         // 握手
         ws.send(
           JSON.stringify({
@@ -150,10 +138,46 @@ export default {
             version: 8,
           }),
         );
+        // 遍历查询设备状态
+        vm.deviceList.forEach(dev => {
+          vm.getDeviceStatus(dev.deviceid);
+        });
       };
       // 监听服务端消息(接收消息)
       ws.onmessage = msg => {
-        let message = JSON.parse(msg.data);
+        const message = JSON.parse(msg.data);
+        if (message.action === 'sysmsg') {
+          // 说明设备在线离线发生变化
+          const { deviceid, params } = message;
+          const { online } = params;
+          const targetDevice = vm.deviceList.filter(
+            dev => dev.deviceid === deviceid,
+          )[0];
+          if (targetDevice) {
+            targetDevice.online = online;
+          }
+        }
+        if (message.action === 'update') {
+          // 说明设备状态更新
+          const { deviceid, params } = message;
+          const switchStatus = params.switch === 'on' ? '已开启' : '已关闭';
+          const targetDevice = vm.deviceList.filter(
+            dev => dev.deviceid === deviceid,
+          )[0];
+          if (targetDevice) {
+            targetDevice.switchStatus = switchStatus;
+          }
+        }
+        if (message.params && message.params.switch) {
+          const { deviceid, params } = message;
+          const switchStatus = params.switch === 'on' ? '已开启' : '已关闭';
+          const targetDevice = vm.deviceList.filter(
+            dev => dev.deviceid === deviceid,
+          )[0];
+          if (targetDevice) {
+            targetDevice.switchStatus = switchStatus;
+          }
+        }
         console.log('收到的消息：', message);
       };
       // 监听连接失败
@@ -170,19 +194,6 @@ export default {
     onBtnClick(item, btn) {
       // 控制设备，即更新设备状态
       if (this.linking) {
-        console.log(
-          JSON.stringify({
-            action: 'query',
-            deviceid: item.deviceid,
-            apikey: this.apikey, // 用户的apikey
-            sequence: +new Date(),
-            // params: btn.params,
-            params: ['switch'],
-            ts: 0,
-            from: 'app',
-            userAgent: 'app',
-          }),
-        );
         this.ws.send(
           JSON.stringify({
             action: 'update',
@@ -190,7 +201,6 @@ export default {
             apikey: this.apikey, // 用户的apikey
             sequence: +new Date(),
             params: btn.params,
-            // params: ['switch'],
             ts: 0,
             from: 'app',
             userAgent: 'app',
@@ -198,6 +208,34 @@ export default {
         );
       }
     },
+    getDeviceStatus(deviceid) {
+      if (this.linking) {
+        this.ws.send(
+          JSON.stringify({
+            action: 'query',
+            deviceid,
+            apikey: this.apikey, // 用户的apikey
+            sequence: +new Date(),
+            ts: 0,
+            from: 'device',
+            userAgent: 'device',
+          }),
+        );
+      }
+    },
+    // isDeviceOnline(deviceid) {
+    //   if (this.linking) {
+    //     this.ws.send(
+    //       JSON.stringify({
+    //         action: 'sysmsg',
+    //         deviceid,
+    //         apikey: this.apikey, // 用户的apikey
+    //         ts: Math.round(new Date().getTime() / 1000),
+    //         // params: { online: true },
+    //       }),
+    //     );
+    //   }
+    // },
   },
 };
 </script>

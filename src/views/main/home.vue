@@ -163,7 +163,9 @@ export default {
       const devices = resp.result.map(dev => ({
         type: dev.extra.extra.ui,
         deviceid: dev.deviceid,
-        name:dev.name
+        name: dev.name,
+        online: dev.online,
+        switchStatus: '已关闭',
       }));
       const devsGroupByType = _.groupBy(devices, 'type');
       for (const item in devsGroupByType) {
