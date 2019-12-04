@@ -51,6 +51,7 @@ export default {
       deviceReName({
         deviceid: this.deviceid,
         name: this.deviceName,
+        userId: 1,
       }).then(resp => {
         if (resp.code === '1') {
           this.$router.push('/device-list');

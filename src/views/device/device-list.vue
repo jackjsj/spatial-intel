@@ -106,7 +106,10 @@ export default {
       Dialog.confirm({
         message: '确定要删除设备吗？',
       }).then(() => {
-        deleteOne(deviceid).then(() => {
+        deleteOne({
+          userId: 1,
+          deviceid,
+        }).then(() => {
           // Toast('删除成功');
         });
       });

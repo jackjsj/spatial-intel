@@ -21,10 +21,8 @@ export function addDevice(options) {
 /**
  *  3. 删除单个设备
  */
-export function deleteOne(deviceid) {
-  return post('/userdevice/deleteOne', {
-    deviceid,
-  });
+export function deleteOne(options) {
+  return post('/userdevice/deleteOne', options);
 }
 
 /**
