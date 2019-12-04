@@ -8,7 +8,8 @@
       right-text="完成"
       left-arrow
       :border="false"
-      @click-left="$router.back()" />
+      @click-left="$router.push('/device-list')"
+      @click-right="changeDeviceName" />
     <div class="mt10">
       <van-field
         v-model="deviceName"
@@ -20,7 +21,7 @@
         readonly
         placeholder="" />
       <van-field
-        v-model="deviceId"
+        v-model="deviceid"
         label="设备号："
         readonly
         placeholder="" />
@@ -29,13 +30,35 @@
 </template>
 
 <script>
+import { Toast } from 'vant';
+import { deviceReName } from '@/api/';
+
 export default {
   data() {
     return {
       deviceName: '',
       location: '',
-      deviceId: '',
+      deviceid: '',
     };
+  },
+  mounted() {
+    // console.log(this.$route);
+    this.deviceid = this.$route.query.deviceid;
+    this.deviceName = this.$route.query.deviceName;
+  },
+  methods: {
+    changeDeviceName() {
+      deviceReName({
+        deviceid: this.deviceid,
+        name: this.deviceName,
+      }).then(resp => {
+        if (resp.code === '1') {
+          this.$router.push('/device-list');
+        } else {
+          Toast(resp.msg);
+        }
+      });
+    },
   },
 };
 </script>

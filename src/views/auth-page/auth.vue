@@ -32,7 +32,7 @@
     <van-popup
       v-model="devicePickerVisible"
       position="bottom"
-      :style="{ height: '30%' }">
+      :style="{ height: '40%',overflow:'hidden'}">
       <van-picker
         :swipe-duration="100"
         show-toolbar
@@ -43,7 +43,7 @@
     <van-popup
       v-model="periodPickerVisible"
       position="bottom"
-      :style="{ height: '30%' }">
+      :style="{ height: '40%',overflow:'hidden' }">
       <van-datetime-picker
         v-model="currentDate"
         type="datetime"
