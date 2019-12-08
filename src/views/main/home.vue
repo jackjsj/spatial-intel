@@ -160,20 +160,22 @@ export default {
   mounted() {
     // 获取设备列表
     deviceList().then(resp => {
-      const devices = resp.result.map(dev => ({
-        type: dev.extra.extra.ui,
-        deviceid: dev.deviceid,
-        name: dev.name,
-        online: dev.online,
-        switchStatus: '',
-      }));
-      const devsGroupByType = _.groupBy(devices, 'type');
-      for (const item in devsGroupByType) {
-        this.myDevices.push({
-          type: item,
-          num: devsGroupByType[item].length,
-          children: devsGroupByType[item],
-        });
+      if (resp.result) {
+        const devices = resp.result.map(dev => ({
+          type: dev.extra.extra.ui,
+          deviceid: dev.deviceid,
+          name: dev.name,
+          online: dev.online,
+          switchStatus: '',
+        }));
+        const devsGroupByType = _.groupBy(devices, 'type');
+        for (const item in devsGroupByType) {
+          this.myDevices.push({
+            type: item,
+            num: devsGroupByType[item].length,
+            children: devsGroupByType[item],
+          });
+        }
       }
     });
   },

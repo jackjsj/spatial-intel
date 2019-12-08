@@ -14,7 +14,12 @@ instance.interceptors.response.use(
 );
 
 export function post(uri, params, config) {
-  return instance.post(uri, params, config);
+  return instance.post(uri, params, {
+    headers: {
+      token: localStorage.getItem('token'),
+    },
+    ...config,
+  });
 }
 
 export function get(uri, config) {

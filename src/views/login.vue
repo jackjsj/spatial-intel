@@ -57,7 +57,8 @@
                 placeholder="再次输入新密码">
               </van-field>
             </div>
-            <van-button class="login-btn">
+            <van-button class="login-btn"
+              @click="login">
               {{mode === 'forgot' ? '完成并':''}}登录
             </van-button>
             <p class="flex aic jcb mt10 fw400 f12"
@@ -75,12 +76,18 @@
           <div class="field-box">
             <van-field
               style="border-width:1px;"
-              v-model="registerPhoneNum"
+              v-model="phoneNum"
               :border="false"
               placeholder="请输入手机号" />
             <van-field
               style="border-width:1px;"
-              v-model="registerVCode"
+              v-model="password"
+              type="password"
+              :border="false"
+              placeholder="请输入密码" />
+            <van-field
+              style="border-width:1px;"
+              v-model="vCode"
               :border="false"
               placeholder="请输入验证码">
               <van-button
@@ -89,7 +96,8 @@
                 size="small"
                 type="primary">发送验证码</van-button>
             </van-field>
-            <van-button class="login-btn">
+            <van-button class="login-btn"
+              @click="register">
               注册并登录
             </van-button>
             <!-- 其它方式注册 -->
@@ -121,6 +129,8 @@
 </template>
 
 <script>
+import { register, login } from '@/api/';
+
 export default {
   data() {
     return {
@@ -142,13 +152,41 @@ export default {
     toggleLoginWay() {
       this.mode = this.mode === 'loginByPwd' ? 'loginByVc' : 'loginByPwd';
     },
+    async login() {
+      const loginResp = await login({
+        mobile: this.phoneNum,
+        password: this.password,
+      });
+      if (loginResp.code !== '1') {
+        Toast(loginResp.msg);
+        return;
+      }
+      localStorage.setItem('token', loginResp.result.token);
+      this.$router.push('/');
+    },
+    async register() {
+      // 判断手机号是否有效
+      if (!/^(?:(?:\+|00)86)?1[3-9]\d{9}$/.test(this.phoneNum)) {
+        Toast('请输入正确的手机号');
+        return;
+      }
+      const registerResp = await register({
+        mobile: this.phoneNum,
+        password: this.password,
+      });
+      if (registerResp.code !== '1') {
+        Toast(registerResp.msg);
+        return;
+      }
+      this.login();
+    },
   },
 };
 </script>
 
 <style lang="scss" scoped>
-.login{
-  background:#fff;
+.login {
+  background: #fff;
 }
 .logo-wrapper {
   width: 100px;
@@ -182,7 +220,7 @@ export default {
   font-weight: 400;
   line-height: 24px;
   color: rgba(249, 252, 255, 1);
-  margin-top: 48px;
+  margin-top: 20px;
   height: 53px;
   border-radius: 6px;
 }
@@ -202,7 +240,7 @@ export default {
   border-bottom: 1px solid #8c9198;
 }
 .other-register {
-  margin-top: 64px;
+  margin-top: 32px;
 }
 .register-logo {
   width: 32px;

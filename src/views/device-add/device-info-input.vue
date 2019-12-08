@@ -101,7 +101,6 @@ export default {
       addDevice({
         ...this.addingDeviceInfo,
         name: this.deviceName,
-        userId: 1,
       }).then(resp => {
         // 添加设备后再调ap
         androidInterface.post_ap();

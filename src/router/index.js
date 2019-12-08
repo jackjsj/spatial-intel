@@ -91,5 +91,14 @@ const routes = [
 const router = new VueRouter({
   routes,
 });
-
+router.beforeEach((to, from, next) => {
+  // 判断是否localStorage中有token
+  const token = localStorage.getItem('token');
+  if (to.name !== 'login' && !token) {
+    // 跳转到登录页面进行登录
+    next('/login');
+  } else {
+    next();
+  }
+});
 export default router;

@@ -107,7 +107,6 @@ export default {
         message: '确定要删除设备吗？',
       }).then(() => {
         deleteOne({
-          userId: 1,
           deviceid,
         }).then(() => {
           // Toast('删除成功');

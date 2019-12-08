@@ -4,11 +4,7 @@ import { get, post } from './request';
  * 1. 获取设备列表
  */
 export function deviceList() {
-  return post('/userdevice/deviceList', {
-    // deviceid: '1000b06c61',
-    // name: '22222',
-    userId: 1,
-  });
+  return post('/userdevice/deviceList');
 }
 
 /**
@@ -46,4 +42,18 @@ export function getOneByDeviceid(deviceid) {
  */
 export function deviceReName(options) {
   return post('/userdevice/deviceReName', options);
+}
+
+/**
+ * 7. 登录
+ */
+export function login(options) {
+  return post('/tbuser/userPhoneLogin', options);
+}
+
+/**
+ * 8. 注册
+ */
+export function register(options) {
+  return post('/tbuser/userPhoneRegister', options);
 }

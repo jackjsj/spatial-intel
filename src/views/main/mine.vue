@@ -24,60 +24,62 @@
 <script>
 import { Toast } from 'vant';
 
-const items = [
-  {
-    name: '按键遥控振动',
-    showToggle: true,
-    checked: false,
-    onClick() {
-      if (this.checked) {
-        navigator.vibrate =
-          navigator.vibrate ||
-          navigator.webkitVibrate ||
-          navigator.mozVibrate ||
-          navigator.msVibrate;
-        const isSupportVib = navigator.vibrate([80]);
-        if (!isSupportVib) Toast('当前设备不支持震动');
-      }
-    },
-  },
-  {
-    name: '充值',
-    to: '/add-credit',
-  },
-  {
-    name: '修改密码',
-    to: '/change-pwd',
-  },
-  {
-    name: '使用说明',
-    to: '',
-  },
-  {
-    name: '分享',
-    to: '',
-  },
-  {
-    name: '用户反馈',
-    to: '/feedback',
-  },
-  {
-    name: '关于我们',
-    to: '',
-  },
-  {
-    name: '设备更新',
-    to: '',
-  },
-  {
-    name: '退出登录',
-    to: '',
-  },
-];
 export default {
   data() {
     return {
-      items,
+      items: [
+        {
+          name: '按键遥控振动',
+          showToggle: true,
+          checked: false,
+          onClick() {
+            if (this.checked) {
+              navigator.vibrate =
+                navigator.vibrate ||
+                navigator.webkitVibrate ||
+                navigator.mozVibrate ||
+                navigator.msVibrate;
+              const isSupportVib = navigator.vibrate([80]);
+              if (!isSupportVib) Toast('当前设备不支持震动');
+            }
+          },
+        },
+        {
+          name: '充值',
+          to: '/add-credit',
+        },
+        {
+          name: '修改密码',
+          to: '/change-pwd',
+        },
+        {
+          name: '使用说明',
+          to: '',
+        },
+        {
+          name: '分享',
+          to: '',
+        },
+        {
+          name: '用户反馈',
+          to: '/feedback',
+        },
+        {
+          name: '关于我们',
+          to: '',
+        },
+        {
+          name: '设备更新',
+          to: '',
+        },
+        {
+          name: '退出登录',
+          onClick: () => {
+            localStorage.removeItem('token');
+            this.$router.push('/login');
+          },
+        },
+      ],
     };
   },
   mounted() {},
