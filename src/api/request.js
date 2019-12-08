@@ -1,22 +1,31 @@
 import axios from 'axios';
+import { Toast } from 'vant';
+import router from '@/router/';
 
 const instance = axios.create({
   headers: {
     'Content-Type': 'application/json',
   },
+  // baseURL: 'http://mj001.free.idcfengye.com/spaceIngelligent/kuzhai',
   baseURL: '/spaceIngelligent/kuzhai',
   timeout: 60000,
 });
 // 添加响应拦截器
 instance.interceptors.response.use(
-  response => response.data,
+  response => {
+    if (response.data.code === 401) {
+      Toast(response.data.msg);
+      router.push('/login');
+    }
+    return response.data;
+  },
   error => Promise.reject(error),
 );
 
 export function post(uri, params, config) {
   return instance.post(uri, params, {
     headers: {
-      token: localStorage.getItem('token'),
+      token: localStorage.getItem('SI_TOKEN'),
     },
     ...config,
   });

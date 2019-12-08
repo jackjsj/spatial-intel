@@ -75,7 +75,7 @@ export default {
         {
           name: '退出登录',
           onClick: () => {
-            localStorage.removeItem('token');
+            localStorage.removeItem('SI_TOKEN');
             this.$router.push('/login');
           },
         },

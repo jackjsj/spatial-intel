@@ -108,8 +108,13 @@ export default {
       }).then(() => {
         deleteOne({
           deviceid,
-        }).then(() => {
-          // Toast('删除成功');
+        }).then(resp => {
+          if (resp.code === '1') {
+            Toast('删除成功');
+            this.$router.push('/');
+          } else {
+            Toast(resp.msg);
+          }
         });
       });
     },

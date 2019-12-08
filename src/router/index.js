@@ -93,7 +93,7 @@ const router = new VueRouter({
 });
 router.beforeEach((to, from, next) => {
   // 判断是否localStorage中有token
-  const token = localStorage.getItem('token');
+  const token = localStorage.getItem('SI_TOKEN');
   if (to.name !== 'login' && !token) {
     // 跳转到登录页面进行登录
     next('/login');

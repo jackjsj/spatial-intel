@@ -1,12 +1,12 @@
 module.exports = {
-  outputDir: 'dist',
+  outputDir: 'space-intel',
   publicPath: './',
   lintOnSave: true,
   devServer: {
     proxy: {
       '/spaceIngelligent': {
-        target: 'http://mj001.free.idcfengye.com/',
-        // target: 'http://baota.qdaoliqi.cn:8080/',
+        // target: 'http://mj001.free.idcfengye.com/',
+        target: 'http://baota.qdaoliqi.cn:8080/',
         changeOrigin: true,
         pathRewrite: {
           '^/spaceIngelligent': '/spaceIngelligent',

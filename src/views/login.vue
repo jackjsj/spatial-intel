@@ -2,14 +2,14 @@
   <!-- 登录与注册 -->
   <div class="login vh100 flex-col ova">
     <!-- logo -->
-    <div class="flex1 flex-none flex-col aic header jcc">
+    <div class="flex-col aic header jcc flex-none" style="height:50%;">
       <div class="logo-wrapper mb10">
-        <img />
+        <img src="@/assets/images/logo.png" />
       </div>
       <p class="wh f14">开启智能生活</p>
     </div>
     <!-- tabs -->
-    <div class="flex1">
+    <div class="flex-none" style="height:50%">
       <van-tabs class="van-tabs"
         title-active-color="#fff"
         title-inactive-color="#fff"
@@ -161,7 +161,7 @@ export default {
         Toast(loginResp.msg);
         return;
       }
-      localStorage.setItem('token', loginResp.result.token);
+      localStorage.setItem('SI_TOKEN', loginResp.result.token);
       this.$router.push('/');
     },
     async register() {
@@ -191,7 +191,10 @@ export default {
 .logo-wrapper {
   width: 100px;
   height: 100px;
-  background: #fff;
+  overflow: hidden;
+  img {
+    width: 100%;
+  }
 }
 .header {
   height: 406px;
