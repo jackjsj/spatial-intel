@@ -106,9 +106,14 @@ export default {
       Dialog.confirm({
         message: '确定要删除设备吗？',
       }).then(() => {
+        Toast.loading({
+          loadingType: 'spinner',
+          duration: 0,
+        });
         deleteOne({
           deviceid,
         }).then(resp => {
+          Toast.clear();
           if (resp.code === '1') {
             Toast('删除成功');
             this.$router.push('/');

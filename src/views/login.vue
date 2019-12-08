@@ -153,10 +153,19 @@ export default {
       this.mode = this.mode === 'loginByPwd' ? 'loginByVc' : 'loginByPwd';
     },
     async login() {
+      if (!/^(?:(?:\+|00)86)?1[3-9]\d{9}$/.test(this.phoneNum)) {
+        Toast('请输入正确的手机号');
+        return;
+      }
+      Toast.loading({
+        loadingType: 'spinner',
+        duration: 0,
+      });
       const loginResp = await login({
         mobile: this.phoneNum,
         password: this.password,
       });
+      Toast.clear();
       if (loginResp.code !== '1') {
         Toast(loginResp.msg);
         return;

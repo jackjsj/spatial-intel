@@ -1,12 +1,19 @@
 function androin_msg(res) {
   console.log(res);
   res = JSON.parse(res);
-  const { code } = res;
+  const { code, msg } = res;
   const { wifiLinkComp } = Vue.prototype;
   switch (code) {
+    case '6':
+    case '7':
+    case '8':
+    case '9':
+      wifiLinkComp.$data.msg = msg;
+      break;
     case '10':
       break;
     case '11':
+    case '12':
       wifiLinkComp.$data.isFailed = true;
       break;
     case '13':

@@ -102,10 +102,15 @@ export default {
         ...this.addingDeviceInfo,
         name: this.deviceName,
       }).then(resp => {
-        // 添加设备后再调ap
-        androidInterface.post_ap();
+        console.log(resp);
+        if (resp.code === '1') {
+          // 添加设备后再调ap
+          androidInterface.post_ap();
+          this.resultPopupVisible = true;
+        } else {
+          Toast(resp.msg);
+        }
         this.isLoading = false;
-        this.resultPopupVisible = true;
       });
     },
     onConfirm() {

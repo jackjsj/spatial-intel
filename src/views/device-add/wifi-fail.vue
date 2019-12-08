@@ -22,6 +22,7 @@
           <p class="mb5">1.设备未进入配对模式</p>
           <p class="mb5">2.WIFI密码不正确</p>
           <p class="mb5">3.距离WIFI路由器太远</p>
+          <p class="mb5">4.设备不支持5GWifi，请确认当前连接的Wifi为2.4G</p>
         </div>
       </div>
       <div class="flex jcc">

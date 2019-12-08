@@ -51,6 +51,7 @@ export default {
       deviceInfo: {},
       finished: false,
       isFailed: false,
+      msg: '',
     };
   },
   watch: {
@@ -65,6 +66,12 @@ export default {
         this.$router.push('/wifi-fail');
       }
     },
+    msg(newValue, oldValue) {
+      if (newValue) {
+        Toast(newValue);
+        this.$router.push('/by-wifi');
+      }
+    },
   },
   mounted() {
     Vue.prototype.router = this.$router;
@@ -72,7 +79,9 @@ export default {
   },
   methods: {
     ...mapMutations(['setAddingDeviceInfo']),
-    cancel() {},
+    cancel() {
+      this.$router.push('/by-wifi');
+    },
   },
 };
 </script>
