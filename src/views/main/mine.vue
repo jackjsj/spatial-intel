@@ -23,6 +23,7 @@
 
 <script>
 import { Toast } from 'vant';
+import { logout } from '@/api/';
 
 export default {
   data() {
@@ -74,9 +75,14 @@ export default {
         },
         {
           name: '退出登录',
-          onClick: () => {
-            localStorage.removeItem('SI_TOKEN');
-            this.$router.push('/login');
+          onClick: async () => {
+            const resp = await logout();
+            if (resp.code === '1') {
+              localStorage.removeItem('SI_TOKEN');
+              this.$router.push('/login');
+            } else {
+              Toast(resp.msg);
+            }
           },
         },
       ],

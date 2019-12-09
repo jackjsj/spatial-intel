@@ -57,3 +57,10 @@ export function login(options) {
 export function register(options) {
   return post('/tbuser/userPhoneRegister', options);
 }
+
+/**
+ * 9. 退出登录
+ */
+export function logout() {
+  return post('/tbuser/logout');
+}
