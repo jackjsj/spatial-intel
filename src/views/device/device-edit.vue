@@ -8,7 +8,7 @@
       right-text="完成"
       left-arrow
       :border="false"
-      @click-left="$router.push('/device-list')"
+      @click-left="$router.back()"
       @click-right="changeDeviceName" />
     <div class="mt10">
       <van-field
@@ -42,7 +42,6 @@ export default {
     };
   },
   mounted() {
-    // console.log(this.$route);
     this.deviceid = this.$route.query.deviceid;
     this.deviceName = this.$route.query.deviceName;
   },
@@ -53,6 +52,7 @@ export default {
         name: this.deviceName,
       }).then(resp => {
         if (resp.code === '1') {
+          Toast('修改将延迟生效，请稍候...');
           this.$router.push('/device-list');
         } else {
           Toast(resp.msg);

@@ -166,7 +166,7 @@ export default {
           deviceid: dev.deviceid,
           name: dev.name,
           online: dev.online,
-          switchStatus: '',
+          switchStatus: false,
         }));
         const devsGroupByType = _.groupBy(devices, 'type');
         for (const item in devsGroupByType) {
@@ -184,7 +184,7 @@ export default {
     onTypeClick(device) {
       const devices = device.children;
       this.setDeviceList(devices);
-      this.$router.push('/device-list');
+      this.$router.push(`/device-list?type=${device.type}`);
     },
   },
 };

@@ -8,7 +8,7 @@
       left-text="返回"
       left-arrow
       :border="false"
-      @click-left="$router.push('/index/mine')" />
+      @click-left="$router.back()" />
     <div class="flex-auto blue-bg">
       <div class="form">
         <van-field :border="false" v-model="type" label="电器品类" />

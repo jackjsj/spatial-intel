@@ -9,7 +9,7 @@
       right-text="完成"
       left-arrow
       :border="false"
-      @click-left="$router.push('/index/mine')"
+      @click-left="$router.back()"
       @click-right="changePwd" />
     <div class="flex-auto blue-bg">
       <div class="form">

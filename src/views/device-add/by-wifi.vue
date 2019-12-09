@@ -8,7 +8,7 @@
       left-text="返回"
       left-arrow
       :border="false"
-      @click-left="$router.push('/')" />
+      @click-left="$router.back()" />
     <div class="flex-auto blue-bg">
       <!-- 输入wifi名称和密码 -->
       <div class="wifi-box flex-col jcc">
@@ -92,7 +92,6 @@ export default {
       // 判断wifi名称是否为空
       if (!this.wifiName.trim()) {
         Toast('未获取到WIFI信息');
-        return;
       }
       // 判断是否记住密码
       if (this.remember) {

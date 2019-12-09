@@ -171,7 +171,7 @@ export default {
         return;
       }
       localStorage.setItem('SI_TOKEN', loginResp.result.token);
-      this.$router.push('/');
+      this.$router.replace('/');
     },
     async register() {
       // 判断手机号是否有效

@@ -8,7 +8,7 @@
       left-text="返回"
       left-arrow
       :border="false"
-      @click-left="$router.push('/')" />
+      @click-left="$router.back()" />
     <div class="flex-auto blue-bg">
       <div>
         <div

@@ -4,11 +4,11 @@
     <van-nav-bar
       class="flex-none"
       style="border-bottom:1px solid #EBEDFF"
-      :title="'设备名称'"
+      :title="$route.query.type"
       left-text="返回"
       left-arrow
       :border="false"
-      @click-left="$router.push('/')" />
+      @click-left="$router.back()" />
     <div>
       <div
         class="device-item"
@@ -16,7 +16,7 @@
         :key="item.deviceid">
         <!-- 列表项头部 -->
         <div class="device-item-header flex jcb mb20">
-          <div class="header-title f16 b c32">{{item.name}}--{{item.online?'在线':'离线'}}--{{item.switchStatus}}</div>
+          <div class="header-title f16 b c32">{{item.name}}--{{item.online?'在线':'离线'}}</div>
           <div class="flex aic header-icon">
             <van-icon class="mr10" name="wap-nav"
               @click="$router.push(`/device-edit?deviceid=${item.deviceid}&deviceName=${item.name}`)" />
@@ -31,7 +31,7 @@
             v-for="btn in controls"
             :key="btn.name">
             <div class="btn flex aic jcc mb5"
-              :style="`background:${btn.background}`">
+              :style="`background:${getBtnBackground(btn, item)}`">
               <img :src="btn.icon" @click="onBtnClick(item, btn)" />
             </div>
             <span class="c32 b">{{btn.name}}</span>
@@ -84,6 +84,14 @@ export default {
   },
   computed: {
     ...mapState(['deviceList']),
+    getBtnBackground(btn, item) {
+      return (btn, item) => {
+        if (btn.name === '开启') {
+          return item.switchStatus ? btn.background : 'gray';
+        }
+        return item.switchStatus ? 'gray' : btn.background;
+      };
+    },
   },
   mounted() {
     // 获取分配服务
@@ -175,7 +183,7 @@ export default {
         if (message.action === 'update') {
           // 说明设备状态更新
           const { deviceid, params } = message;
-          const switchStatus = params.switch === 'on' ? '已开启' : '已关闭';
+          const switchStatus = params.switch === 'on';
           const targetDevice = this.deviceList.filter(
             dev => dev.deviceid === deviceid,
           )[0];
@@ -185,7 +193,7 @@ export default {
         }
         if (message.params && message.params.switch) {
           const { deviceid, params } = message;
-          const switchStatus = params.switch === 'on' ? '已开启' : '已关闭';
+          const switchStatus = params.switch === 'on';
           const targetDevice = this.deviceList.filter(
             dev => dev.deviceid === deviceid,
           )[0];
