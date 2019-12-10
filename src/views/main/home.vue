@@ -96,6 +96,7 @@
                 <p class="f10" style="color:#8C9198">{{device.num}}</p>
               </div>
             </div>
+            <div v-if="myDevices.length % 2 === 1" class="item-padding"></div>
           </div>
         </div>
       </div>
@@ -159,7 +160,13 @@ export default {
   },
   mounted() {
     // 获取设备列表
+    Toast.loading({
+      // loadingType: 'spinner',
+      during: 0,
+      message: '加载中...',
+    });
     deviceList().then(resp => {
+      Toast.clear();
       if (resp.result) {
         const devices = resp.result.map(dev => ({
           type: dev.extra.extra.ui,
@@ -269,8 +276,20 @@ export default {
   height: 80px;
   display: flex;
   flex: none;
-  border: 1px dashed #ccc;
+  border-bottom: 1px solid rgb(221, 227, 242);
+  border-right: 1px solid rgb(221, 227, 242);
   box-sizing: border-box;
+  &:nth-child(2n) {
+    border-right: none;
+  }
+  &:nth-last-child(1),
+  &:nth-last-child(2) {
+    border-bottom: none;
+  }
+}
+.item-padding {
+  width: 50%;
+  border: none;
 }
 .swiper-img {
   height: 180px;

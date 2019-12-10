@@ -16,7 +16,7 @@
         :key="item.deviceid">
         <!-- 列表项头部 -->
         <div class="device-item-header flex jcb mb20">
-          <div class="header-title f16 b c32">{{item.name}}--{{item.online?'在线':'离线'}}</div>
+          <div class="header-title f16 b c32">{{item.name}}</div>
           <div class="flex aic header-icon">
             <van-icon class="mr10" name="wap-nav"
               @click="$router.push(`/device-edit?deviceid=${item.deviceid}&deviceName=${item.name}`)" />
@@ -24,17 +24,24 @@
               @click="deleteDevice(item.deviceid)" />
           </div>
         </div>
-        <!-- 控制按钮 -->
-        <div class="flex jca">
-          <div
-            class="btn-item flex-col aic"
-            v-for="btn in controls"
-            :key="btn.name">
-            <div class="btn flex aic jcc mb5"
-              :style="`background:${getBtnBackground(btn, item)}`">
-              <img :src="btn.icon" @click="onBtnClick(item, btn)" />
+        <div class="rel">
+          <!-- 控制按钮 -->
+          <div class="flex jca">
+            <div
+              class="btn-item flex-col aic"
+              v-for="btn in controls"
+              :key="btn.name">
+              <div class="btn flex aic jcc mb5"
+                :style="`background:${getBtnBackground(btn, item)}`">
+                <img :src="btn.icon" @click="onBtnClick(item, btn)" />
+              </div>
+              <span class="c32 b">{{btn.name}}</span>
             </div>
-            <span class="c32 b">{{btn.name}}</span>
+          </div>
+          <!-- 离线遮罩 -->
+          <div class="overlay flex aic jcc f24 b wh"
+            v-show="!item.online">
+            离线
           </div>
         </div>
       </div>
@@ -87,9 +94,13 @@ export default {
     getBtnBackground(btn, item) {
       return (btn, item) => {
         if (btn.name === '开启') {
-          return item.switchStatus ? btn.background : 'gray';
+          return item.switchStatus
+            ? btn.background
+            : 'linear-gradient(136deg,rgba(255,255,255,1) 0%,gray 100%);';
         }
-        return item.switchStatus ? 'gray' : btn.background;
+        return item.switchStatus
+          ? 'linear-gradient(136deg,rgba(255,255,255,1) 0%,gray 100%);'
+          : btn.background;
       };
     },
   },
@@ -281,5 +292,14 @@ export default {
     font-size: 20px;
     color: rgb(76, 76, 76);
   }
+}
+.overlay {
+  position: absolute;
+  bottom: 0;
+  height: 130%;
+  width: 100%;
+  margin-bottom: -10px;
+  background: rgba(0, 0, 0, 0.7);
+  border-radius: 6px;
 }
 </style>
