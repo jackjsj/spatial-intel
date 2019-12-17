@@ -4,7 +4,7 @@
     <van-nav-bar
       class="flex-none"
       style="border-bottom:1px solid #EBEDFF"
-      :title="$route.query.type"
+      :title="group"
       left-text="返回"
       left-arrow
       :border="false"
@@ -45,7 +45,7 @@
 <script>
 import { mapState } from 'vuex';
 import { Toast, Dialog } from 'vant';
-import { deleteOne, webSocketAp, getOneByDeviceid } from '@/api/';
+import { deleteOne, webSocketAp, getOneByDeviceid, deviceList } from '@/api';
 
 const controls = [
   {
@@ -80,10 +80,11 @@ export default {
     return {
       controls,
       linking: false,
+      group: '',
+      deviceList: [],
     };
   },
   computed: {
-    ...mapState(['deviceList']),
     getBtnBackground(btn, item) {
       return (btn, item) => {
         if (btn.name === '开启') {
@@ -94,6 +95,21 @@ export default {
     },
   },
   mounted() {
+    // 获取分组，位置和授权类型
+    const { group, loc, authType } = this.$route.query;
+    this.group = group;
+    deviceList({
+      deviceGroup: group,
+      deviceLocation: loc,
+      deviceType: authType,
+    }).then(resp => {
+      if (resp.code === '1') {
+        this.deviceList = resp.result;
+      } else {
+        Toast(resp.msg);
+      }
+      console.log(resp);
+    });
     // 获取分配服务
     webSocketAp().then(resp => {
       const { apikey, appid, at, device } = resp.result;

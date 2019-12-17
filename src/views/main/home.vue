@@ -76,24 +76,27 @@
           <span class="f14 c32 b">{{item.name}}</span>
         </div>
         <!-- 根据位置分 -->
-        <div>
-          <!-- <div class="flex aic mb10">
+        <div
+          class="mb10"
+          v-for="loc in list[item.key]"
+          :key="loc.deviceLocation">
+          <div class="flex aic mb10">
             <img class="loc-img mr10" src="@/assets/images/loc-1.png" />
-            <p class="c32 b f16">公司</p>
-          </div> -->
+            <p class="c32 b f16">{{loc.deviceLocation}}</p>
+          </div>
           <div class="flex flex-wrap">
             <!-- 根据设备类型分 -->
             <div
               class="device-type-item aic jcc poi"
               style="border-width:1px;"
-              v-for="device in myDevices"
-              :key="device.type"
-              @click="onTypeClick(device)">
+              v-for="group in loc.countGroup"
+              :key="group.deviceGroup"
+              @click="onTypeClick(group.deviceGroup, loc.deviceLocation, item.key)">
               <!-- <div class="icon-wrapper mr10">
               </div> -->
               <div class="tc fw600">
-                <p class="f13" style="color:#06121F">{{device.type}}</p>
-                <p class="f10" style="color:#8C9198">{{device.num}}</p>
+                <p class="f13" style="color:#06121F">{{group.deviceGroup}}</p>
+                <p class="f10" style="color:#8C9198">{{group.num}}</p>
               </div>
             </div>
           </div>
@@ -104,29 +107,30 @@
 </template>
 
 <script>
-import _ from 'lodash';
-import { mapMutations } from 'vuex';
 import sample1 from '@/assets/images/sample1.png';
 import sample2 from '@/assets/images/sample2.png';
 import sample3 from '@/assets/images/sample3.png';
-import { deviceList } from '@/api/';
+import { deviceSortList } from '@/api/';
 
 const items = [
   {
     name: '我的设备',
     background:
       'linear-gradient(133deg,rgba(27, 223, 86, 0.77) 0%,rgba(222, 255, 236, 0.2) 100%)',
+    key: '1',
   },
-  // {
-  //   name: '接收授权的设备',
-  //   background:
-  //     'linear-gradient(127deg,rgba(58,230,189,0.88) 0%,rgba(223,255,248,0.2) 100%)',
-  // },
-  // {
-  //   name: '已授权的设备',
-  //   background:
-  //     'linear-gradient(139deg,rgba(99,123,255,0.56) 0%,rgba(239,241,255,0.38) 100%)',
-  // },
+  {
+    name: '接收授权的设备',
+    background:
+      'linear-gradient(127deg,rgba(58,230,189,0.88) 0%,rgba(223,255,248,0.2) 100%)',
+    key: '2',
+  },
+  {
+    name: '已授权的设备',
+    background:
+      'linear-gradient(139deg,rgba(99,123,255,0.56) 0%,rgba(239,241,255,0.38) 100%)',
+    key: '3',
+  },
 ];
 
 const myDevices = [
@@ -155,36 +159,45 @@ export default {
       sample1,
       sample2,
       sample3,
+      list: [],
     };
   },
   mounted() {
     // 获取设备列表
-    deviceList().then(resp => {
-      if (resp.result) {
-        const devices = resp.result.map(dev => ({
-          type: dev.extra.extra.ui,
-          deviceid: dev.deviceid,
-          name: dev.name,
-          online: dev.online,
-          switchStatus: false,
-        }));
-        const devsGroupByType = _.groupBy(devices, 'type');
-        for (const item in devsGroupByType) {
-          this.myDevices.push({
-            type: item,
-            num: devsGroupByType[item].length,
-            children: devsGroupByType[item],
-          });
-        }
+    // deviceList().then(resp => {
+    //   if (resp.result) {
+    //     const devices = resp.result.map(dev => ({
+    //       type: dev.extra.extra.ui,
+    //       deviceid: dev.deviceid,
+    //       name: dev.name,
+    //       online: dev.online,
+    //       switchStatus: false,
+    //     }));
+    //     const devsGroupByType = _.groupBy(devices, 'type');
+    //     for (const item in devsGroupByType) {
+    //       this.myDevices.push({
+    //         type: item,
+    //         num: devsGroupByType[item].length,
+    //         children: devsGroupByType[item],
+    //       });
+    //     }
+    //   }
+    // });
+    //
+
+    deviceSortList().then(resp => {
+      if (resp.code === '1') {
+        this.list = resp.result;
+      } else {
+        Toast(resp.msg);
       }
     });
   },
   methods: {
-    ...mapMutations(['setDeviceList']),
-    onTypeClick(device) {
-      const devices = device.children;
-      this.setDeviceList(devices);
-      this.$router.push(`/device-list?type=${device.type}`);
+    onTypeClick(group, loc, authType) {
+      this.$router.push(
+        `/device-list?group=${group}&loc=${loc}&authType=${authType}`,
+      );
     },
   },
 };

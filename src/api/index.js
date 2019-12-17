@@ -3,8 +3,8 @@ import { get, post } from './request';
 /**
  * 1. 获取设备列表
  */
-export function deviceList() {
-  return post('/userdevice/deviceList');
+export function deviceList(options) {
+  return post('/userdevice/deviceList', options);
 }
 
 /**
@@ -63,4 +63,8 @@ export function register(options) {
  */
 export function logout() {
   return post('/tbuser/logout');
+}
+
+export function deviceSortList() {
+  return post('/userdevice/deviceSortList');
 }
