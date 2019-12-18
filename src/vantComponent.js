@@ -21,6 +21,7 @@ import {
   DatetimePicker,
   Swipe,
   SwipeItem,
+  Overlay,
   Panel,
   List,
   Search,
@@ -52,6 +53,7 @@ Vue.use(NavBar)
   .use(Switch)
   .use(DatetimePicker)
   .use(Swipe)
+  .use(Overlay)
   .use(SwipeItem);
 // Vue.use(Panel);
 // Vue.use(List);

@@ -99,6 +99,7 @@
                 <p class="f10" style="color:#8C9198">{{group.num}}</p>
               </div>
             </div>
+            <div v-if="myDevices.length % 2 === 1" class="item-padding"></div>
           </div>
         </div>
       </div>
@@ -164,30 +165,14 @@ export default {
   },
   mounted() {
     // 获取设备列表
-    // deviceList().then(resp => {
-    //   if (resp.result) {
-    //     const devices = resp.result.map(dev => ({
-    //       type: dev.extra.extra.ui,
-    //       deviceid: dev.deviceid,
-    //       name: dev.name,
-    //       online: dev.online,
-    //       switchStatus: false,
-    //     }));
-    //     const devsGroupByType = _.groupBy(devices, 'type');
-    //     for (const item in devsGroupByType) {
-    //       this.myDevices.push({
-    //         type: item,
-    //         num: devsGroupByType[item].length,
-    //         children: devsGroupByType[item],
-    //       });
-    //     }
-    //   }
-    // });
-    //
-
+    Toast.loading({
+      during: 0,
+      message: '加载中...',
+    });
     deviceSortList().then(resp => {
       if (resp.code === '1') {
         this.list = resp.result;
+        Toast.clear();
       } else {
         Toast(resp.msg);
       }
@@ -282,8 +267,12 @@ export default {
   height: 80px;
   display: flex;
   flex: none;
-  border: 1px dashed #ccc;
+  border: 1px solid rgb(221, 227, 242);
   box-sizing: border-box;
+}
+.item-padding {
+  width: 50%;
+  border: none;
 }
 .swiper-img {
   height: 180px;
