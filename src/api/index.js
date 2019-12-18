@@ -31,10 +31,8 @@ export function webSocketAp() {
 /**
  * 5. 获取单个设备详情
  */
-export function getOneByDeviceid(deviceid) {
-  return post('/userdevice/getOneByDeviceid', {
-    deviceid,
-  });
+export function getOneByDeviceid(options) {
+  return post('/userdevice/getOneByDeviceid', options);
 }
 
 /**
@@ -65,6 +63,30 @@ export function logout() {
   return post('/tbuser/logout');
 }
 
+/**
+ * 10. 设备分组列表
+ */
 export function deviceSortList() {
   return post('/userdevice/deviceSortList');
+}
+
+/**
+    11. 查询用户已有分类信息
+ */
+export function querySortInfo() {
+  return post('/userdevice/querySortInfo');
+}
+
+/**
+ * 12. 查询所有用户设备
+ */
+export function userAllDevicesList() {
+  return post('/userdevice/userAllDevicesList');
+}
+
+/**
+ * 授权设备
+ */
+export function shareDevice(options) {
+  return post('/userdevice/shareDevice', options);
 }

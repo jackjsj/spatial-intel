@@ -105,22 +105,9 @@ export default {
       };
     },
   },
-  mounted() {
+  async mounted() {
     // 获取分组，位置和授权类型
-    const { group, loc, authType } = this.$route.query;
-    this.group = group;
-    deviceList({
-      deviceGroup: group,
-      deviceLocation: loc,
-      deviceType: authType,
-    }).then(resp => {
-      if (resp.code === '1') {
-        this.deviceList = resp.result;
-      } else {
-        Toast(resp.msg);
-      }
-      console.log(resp);
-    });
+    await this.getDeviceList();
     // 获取分配服务
     webSocketAp().then(resp => {
       const { apikey, appid, at, device } = resp.result;
@@ -136,6 +123,27 @@ export default {
     });
   },
   methods: {
+    async getDeviceList() {
+      Toast.loading({
+        duration: 0,
+        forbidClick: true,
+        message: '加载中...',
+      });
+      const { group, loc, authType } = this.$route.query;
+      this.group = group;
+      this.authType = authType;
+      const resp = await deviceList({
+        deviceGroup: group,
+        deviceLocation: loc,
+        deviceType: authType,
+      });
+      if (resp.code === '1') {
+        this.deviceList = resp.result;
+        Toast.clear();
+      } else {
+        Toast(resp.msg);
+      }
+    },
     deleteDevice(deviceid) {
       // 提示
       Dialog.confirm({
@@ -182,9 +190,14 @@ export default {
           }),
         );
         // 遍历查询设备状态
+        console.log(this.deviceList);
         this.deviceList.forEach(dev => {
-          getOneByDeviceid(dev.deviceid).then(resp => {
-            dev.online = resp.result.online;
+          getOneByDeviceid({
+            deviceid: dev.deviceid,
+            deviceType: this.authType,
+          }).then(resp => {
+            // dev.online = resp.result.online;
+            this.$set(dev, 'online', resp.result.online);
           });
           this.getDeviceStatus(dev.deviceid);
         });
@@ -204,7 +217,7 @@ export default {
             dev => dev.deviceid === deviceid,
           )[0];
           if (targetDevice) {
-            targetDevice.online = online;
+            this.$set(targetDevice, 'online', online);
           }
         }
         if (message.action === 'update') {
@@ -215,7 +228,7 @@ export default {
             dev => dev.deviceid === deviceid,
           )[0];
           if (targetDevice) {
-            targetDevice.switchStatus = switchStatus;
+            this.$set(targetDevice, 'switchStatus', switchStatus);
           }
         }
         if (message.params && message.params.switch) {
@@ -225,7 +238,7 @@ export default {
             dev => dev.deviceid === deviceid,
           )[0];
           if (targetDevice) {
-            targetDevice.switchStatus = switchStatus;
+            this.$set(targetDevice, 'switchStatus', switchStatus);
           }
         }
         console.log('收到的消息：', message);

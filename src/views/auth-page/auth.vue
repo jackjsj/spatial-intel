@@ -19,7 +19,7 @@
       <van-field
         v-model="authDevice"
         label="授权设备："
-        @click="devicePickerVisible = true"
+        @click="pickDevice"
         readonly
         placeholder="请选择将要授权的设备" />
       <van-field
@@ -106,7 +106,9 @@
 
 <script>
 import moment from 'moment';
+import { userAllDevicesList, shareDevice } from '@/api';
 
+const noDeviceTip = '你还没有设备，请先添加设备';
 export default {
   data() {
     return {
@@ -116,8 +118,8 @@ export default {
       devicePickerVisible: false,
       periodPickerVisible: false,
       isSuccess: true, // 是否成功
-      resultPopupVisible: true,
-      devices: ['HUAWEI', '小米', '摄像头'],
+      resultPopupVisible: false,
+      devices: [],
       minDate: new Date(),
       maxDate: new Date(2029, 10, 1),
       currentDate: new Date(),
@@ -125,14 +127,43 @@ export default {
   },
   mounted() {
     // 获取我的设备
+    Toast.loading({
+      duration: 0,
+      forbidClick: true,
+      message: '加载中...',
+    });
+    userAllDevicesList().then(resp => {
+      if (resp.code === '1') {
+        console.log(resp);
+        this.devices = resp.result.map(item => ({
+          ...item,
+          text: `${item.name}(${item.deviceid})`,
+        }));
+        if (this.devices.length === 0) {
+          Toast(noDeviceTip);
+        } else {
+          Toast.clear();
+        }
+      } else {
+        Toast('获取设备列表失败');
+      }
+    });
   },
   methods: {
+    pickDevice() {
+      if (this.devices.length > 0) {
+        this.devicePickerVisible = true;
+      } else {
+        Toast(noDeviceTip);
+      }
+    },
     // 继续授权
     again() {
       this.resultPopupVisible = false;
     },
     onDeviceConfirm(value) {
-      this.authDevice = value;
+      this.authDevice = `${value.name}(${value.deviceid})`;
+      this.authDeviceid = value.deviceid;
       this.devicePickerVisible = false;
     },
     onPeriodConfirm(value) {
@@ -140,7 +171,38 @@ export default {
       this.periodPickerVisible = false;
     },
     // 授权
-    auth() {},
+    auth() {
+      // 判断手机号是否有效
+      if (!/^(?:(?:\+|00)86)?1[3-9]\d{9}$/.test(this.authTo)) {
+        Toast('请输入正确的手机号');
+        return;
+      }
+      if (!this.authDevice) {
+        Toast('请选择待授权的设备');
+        return;
+      }
+      if (!this.authPeriod) {
+        Toast('请选择授权期限');
+      }
+      Toast.loading({
+        duration: 0,
+        forbidClick: true,
+        message: '正在授权...',
+      });
+      shareDevice({
+        deviceid: this.authDeviceid,
+        phone: this.authTo,
+        shareStartTime: moment().format('YYYY-MM-DD HH:mm:ss'),
+        shareEndTime: this.authPeriod,
+      }).then(resp => {
+        if (resp.code === '1') {
+          Toast.clear();
+          this.resultPopupVisible = true;
+        } else {
+          Toast(resp.msg);
+        }
+      });
+    },
   },
 };
 </script>

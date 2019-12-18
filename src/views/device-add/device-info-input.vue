@@ -76,8 +76,7 @@
     <van-popup
       :close-on-click-overlay="false"
       v-model="pickPopupVisible"
-      position="bottom"
-      :style="{ height: '30%' }">
+      position="bottom">
       <van-picker
         show-toolbar
         :title="`选择${pickType === 'loc'?'位置':'分组'}`"
@@ -90,7 +89,7 @@
 
 <script>
 import { mapState } from 'vuex';
-import { addDevice } from '@/api/';
+import { addDevice, querySortInfo } from '@/api/';
 
 function getTs() {
   return Math.round(new Date().getTime() / 1000);
@@ -116,6 +115,18 @@ export default {
       duration: 0,
       forbidClick: true,
       message: '加载中...',
+    });
+    querySortInfo().then(resp => {
+      if (resp.code === '1') {
+        const { deviceGroup, deviceLocation } = resp.result;
+        this.locations.push(...deviceLocation);
+        this.locations = [...new Set(this.locations)];
+        this.groups.push(...deviceGroup);
+        this.groups = [...new Set(this.groups)];
+        Toast.clear();
+      } else {
+        Toast(resp.msg);
+      }
     });
     this.deviceName = this.addingDeviceInfo.deviceid;
   },
