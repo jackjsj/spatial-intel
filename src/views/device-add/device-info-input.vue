@@ -25,7 +25,12 @@
               v-model="deviceName"
               label="设备名称："
               :placeholder="addingDeviceInfo.deviceid" />
-            <van-field :border="false" v-model="location" label="设备位置：" readonly />
+            <van-field :border="false" v-model="location" label="设备位置："
+              right-icon="more-o"
+              @click-right-icon="showLocations" />
+            <van-field :border="false" v-model="group" label="设备分组："
+              right-icon="more-o"
+              @click-right-icon="showGroups" />
             <van-field :border="false" v-model="addingDeviceInfo.deviceid" label="设备号：" readonly />
           </van-cell-group>
         </div>
@@ -68,6 +73,18 @@
         </div>
       </div>
     </van-popup>
+    <van-popup
+      :close-on-click-overlay="false"
+      v-model="pickPopupVisible"
+      position="bottom"
+      :style="{ height: '30%' }">
+      <van-picker
+        show-toolbar
+        :title="`选择${pickType === 'loc'?'位置':'分组'}`"
+        :columns="pickType === 'loc' ? locations:groups"
+        @cancel="onPickerCancel"
+        @confirm="onPickerConfirm" />
+    </van-popup>
   </div>
 </template>
 
@@ -83,24 +100,56 @@ export default {
   data() {
     return {
       deviceName: '',
-      location: '公司',
+      location: '',
+      group: '',
       resultPopupVisible: false,
       isLoading: false,
+      pickPopupVisible: false,
+      locations: ['家', '公司'],
+      groups: ['默认分组'],
+      pickType: '',
     };
   },
   mounted() {
+    // 获取分组列表和位置列表
+    Toast.loading({
+      duration: 0,
+      forbidClick: true,
+      message: '加载中...',
+    });
     this.deviceName = this.addingDeviceInfo.deviceid;
   },
   computed: {
     ...mapState(['addingDeviceInfo']),
   },
   methods: {
+    onPickerCancel() {
+      this.pickPopupVisible = false;
+    },
+    onPickerConfirm(name) {
+      if (this.pickType === 'loc') {
+        this.location = name;
+      } else {
+        this.group = name;
+      }
+      this.pickPopupVisible = false;
+    },
+    showLocations() {
+      this.pickType = 'loc';
+      this.pickPopupVisible = true;
+    },
+    showGroups() {
+      this.pickType = 'group';
+      this.pickPopupVisible = true;
+    },
     async addDevice() {
       this.isLoading = true;
       // 调添加设备接口
       addDevice({
         ...this.addingDeviceInfo,
         name: this.deviceName,
+        deviceLocation: this.location,
+        deviceGroup: this.group,
       }).then(resp => {
         console.log(resp);
         if (resp.code === '1') {

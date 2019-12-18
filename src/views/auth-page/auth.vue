@@ -30,6 +30,7 @@
         placeholder="请选择" />
     </div>
     <van-popup
+      :close-on-click-overlay="false"
       v-model="devicePickerVisible"
       position="bottom"
       :style="{ height: '40%',overflow:'hidden'}">
@@ -74,12 +75,14 @@
           <div class="mr10">
             <van-button size="small"
               style="border-width:1px;color:#205BFF; border-color:#205BFF"
-              class="popup-btn">继续授权</van-button>
+              class="popup-btn"
+              @click="again">继续授权</van-button>
           </div>
           <div>
             <van-button size="small"
               style="border-width:1px;color:#205BFF; border-color:#205BFF"
-              class="popup-btn">确定</van-button>
+              class="popup-btn"
+              @click="$router.back()">确定</van-button>
           </div>
         </div>
         <div class="flex"
@@ -113,14 +116,21 @@ export default {
       devicePickerVisible: false,
       periodPickerVisible: false,
       isSuccess: true, // 是否成功
-      resultPopupVisible: false,
+      resultPopupVisible: true,
       devices: ['HUAWEI', '小米', '摄像头'],
       minDate: new Date(),
       maxDate: new Date(2029, 10, 1),
       currentDate: new Date(),
     };
   },
+  mounted() {
+    // 获取我的设备
+  },
   methods: {
+    // 继续授权
+    again() {
+      this.resultPopupVisible = false;
+    },
     onDeviceConfirm(value) {
       this.authDevice = value;
       this.devicePickerVisible = false;
