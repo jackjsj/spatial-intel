@@ -54,6 +54,7 @@ Vue.use(NavBar)
   .use(DatetimePicker)
   .use(Swipe)
   .use(Overlay)
+  .use(Slider)
   .use(SwipeItem);
 // Vue.use(Panel);
 // Vue.use(List);

@@ -255,6 +255,12 @@ div.dib {
 .ml20 {
   margin-left: 20px;
 }
+.ml25 {
+  margin-left: 25px;
+}
+.ml26 {
+  margin-left: 26px;
+}
 .ml30 {
   margin-left: 30px;
 }
@@ -649,7 +655,7 @@ div.dib {
 .f14 {
   font-size: 14px;
 }
-.f15{
+.f15 {
   font-size: 15px;
 }
 .f16 {

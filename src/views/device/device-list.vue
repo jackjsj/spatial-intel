@@ -1,5 +1,5 @@
 <template>
-  <div>
+  <div class="device-list">
     <!-- 设备列表 -->
     <van-nav-bar
       class="flex-none"
@@ -15,18 +15,18 @@
         v-for="item in deviceList"
         :key="item.deviceid">
         <!-- 列表项头部 -->
-        <div class="device-item-header flex jcb mb20">
+        <div class="device-item-header flex jcb mb10">
           <div class="header-title f16 b c32">{{item.name}}</div>
-          <div class="flex aic header-icon">
+          <div class="flex aic header-icon" v-if="authType!=='2'">
             <van-icon class="mr10" name="wap-nav"
-              @click="$router.push(`/device-edit?deviceid=${item.deviceid}&deviceName=${item.name}`)" />
+              @click="$router.push(`/device-edit?deviceid=${item.deviceid}&deviceName=${item.name}&loc=${item.deviceLocation}&group=${item.deviceGroup}`)" />
             <van-icon name="delete"
               @click="deleteDevice(item.deviceid)" />
           </div>
         </div>
-        <div class="rel">
+        <div class="rel pt10">
           <!-- 控制按钮 -->
-          <div class="flex jca">
+          <div class="flex jca mb15">
             <div
               class="btn-item flex-col aic"
               v-for="btn in controls"
@@ -37,6 +37,54 @@
               </div>
               <span class="c32 b">{{btn.name}}</span>
             </div>
+          </div>
+          <!-- 温湿控制 -->
+          <div v-if="item.ui === '恒温恒湿改装件'">
+            <!-- 当前状态 -->
+            <div class="ctrl-item">
+              <p class="c32 b f14 sub-title">当前状态</p>
+              <div class="flex jcc cf2">
+                <div class="current-state warm mr20">
+                  <p class="f24">{{parseInt(item.temperature)}}°</p>
+                  <p>当前温度</p>
+                </div>
+                <div class="current-state cold">
+                  <p class="f24">{{parseInt(item.humidity)}}%</p>
+                  <p>当前湿度</p>
+                </div>
+              </div>
+            </div>
+            <!-- <div class="ctrl-item">
+              <p class="c32 b f14 sub-title">自定义温度</p>
+              <p class="c7c ml26">推荐温度为：36度。</p>
+              <div class="cf2 slider-bar flex-col jcc">
+                <van-slider
+                  class="temp-slider"
+                  v-model="temperature"
+                  active-color="#ee0a24">
+                  <div
+                    slot="button"
+                    class="slider-button temp-button">
+                    {{ temperature }}°
+                  </div>
+                </van-slider>
+              </div>
+            </div>
+            <div class="ctrl-item">
+              <p class="c32 b f14 sub-title">自定义湿度</p>
+              <div class="cf2 slider-bar flex-col jcc">
+                <van-slider
+                  class="humidity-slider"
+                  v-model="humidity"
+                  active-color="#ee0a24">
+                  <div
+                    slot="button"
+                    class="slider-button humidity-button">
+                    {{ humidity }}
+                  </div>
+                </van-slider>
+              </div>
+            </div> -->
           </div>
           <!-- 离线遮罩 -->
           <div class="overlay flex aic jcc f24 b wh"
@@ -89,6 +137,9 @@ export default {
       linking: false,
       group: '',
       deviceList: [],
+      temperature: 36,
+      humidity: 50,
+      authType: '',
     };
   },
   computed: {
@@ -123,6 +174,7 @@ export default {
     });
   },
   methods: {
+    // 获取设备列表
     async getDeviceList() {
       Toast.loading({
         duration: 0,
@@ -144,6 +196,7 @@ export default {
         Toast(resp.msg);
       }
     },
+    // 删除设备
     deleteDevice(deviceid) {
       // 提示
       Dialog.confirm({
@@ -166,6 +219,7 @@ export default {
         });
       });
     },
+    // 连接ws
     connectWebsocket(options) {
       const { domain, port, at, apikey, appid } = options;
       this.apikey = apikey;
@@ -190,13 +244,13 @@ export default {
           }),
         );
         // 遍历查询设备状态
-        console.log(this.deviceList);
         this.deviceList.forEach(dev => {
           getOneByDeviceid({
             deviceid: dev.deviceid,
             deviceType: this.authType,
           }).then(resp => {
-            // dev.online = resp.result.online;
+            // 获取在线状态
+            console.log(resp.result);
             this.$set(dev, 'online', resp.result.online);
           });
           this.getDeviceStatus(dev.deviceid);
@@ -209,6 +263,7 @@ export default {
         if (message.params === undefined) {
           this.getDeviceStatus(message.deviceid);
         }
+        // 监听系统消息
         if (message.action === 'sysmsg') {
           // 说明设备在线离线发生变化
           const { deviceid, params } = message;
@@ -220,6 +275,7 @@ export default {
             this.$set(targetDevice, 'online', online);
           }
         }
+        // 监听状态更新
         if (message.action === 'update') {
           // 说明设备状态更新
           const { deviceid, params } = message;
@@ -234,11 +290,14 @@ export default {
         if (message.params && message.params.switch) {
           const { deviceid, params } = message;
           const switchStatus = params.switch === 'on';
+          const { currentHumidity, currentTemperature } = params;
           const targetDevice = this.deviceList.filter(
             dev => dev.deviceid === deviceid,
           )[0];
           if (targetDevice) {
             this.$set(targetDevice, 'switchStatus', switchStatus);
+            this.$set(targetDevice, 'temperature', currentTemperature);
+            this.$set(targetDevice, 'humidity', currentHumidity);
           }
         }
         console.log('收到的消息：', message);
@@ -325,10 +384,108 @@ export default {
 .overlay {
   position: absolute;
   bottom: 0;
-  height: 130%;
+  top: 0;
   width: 100%;
   margin-bottom: -10px;
   background: rgba(0, 0, 0, 0.7);
   border-radius: 6px;
+}
+.current-state {
+  width: 80px;
+  height: 80px;
+  border-radius: 50%;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  &.warm {
+    background: linear-gradient(
+      321deg,
+      rgba(252, 128, 37, 1) 0%,
+      rgba(254, 211, 182, 1) 100%
+    );
+  }
+  &.cold {
+    background: linear-gradient(
+      142deg,
+      rgba(137, 170, 254, 1) 0%,
+      rgba(40, 98, 249, 1) 100%
+    );
+  }
+}
+.sub-title {
+  display: flex;
+  margin-bottom: 15px;
+  margin-left: 10px;
+  align-items: center;
+  &::before {
+    content: '';
+    display: inline-block;
+    width: 16px;
+    height: 16px;
+    background: rgb(45, 96, 238);
+    border-radius: 50%;
+    margin-right: 10px;
+    box-sizing: border-box;
+    border: 4px solid #c0cdef;
+  }
+}
+.ctrl-item {
+  padding: 16px 0;
+  border-top: 1px solid #ebedff;
+}
+
+.temp-slider {
+  background: linear-gradient(
+    90deg,
+    rgba(255, 243, 228, 1) 0%,
+    rgba(255, 79, 0, 1) 100%
+  );
+  margin: 0 28px;
+}
+.humidity-slider {
+  background: linear-gradient(
+    90deg,
+    rgb(189, 207, 255) 0%,
+    rgba(40, 98, 249, 1) 100%
+  );
+  margin: 0 28px;
+}
+.slider-bar {
+  height: 56px;
+  margin-top: 15px;
+}
+.slider-button {
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  box-sizing: border-box;
+  color: #f2f2f2;
+  font-size: 22px;
+  font-weight: 400px;
+  line-height: 56px;
+  text-align: center;
+}
+.temp-button {
+  background: linear-gradient(
+    270deg,
+    rgba(255, 176, 130, 1) 0%,
+    rgba(252, 233, 208, 1) 100%
+  );
+}
+.humidity-button {
+  background: linear-gradient(
+    142deg,
+    rgba(137, 170, 254, 1) 0%,
+    rgba(40, 98, 249, 1) 100%
+  );
+}
+</style>
+<style lang="scss">
+.device-list {
+  .van-slider__bar {
+    height: 10px !important;
+    background: transparent !important;
+  }
 }
 </style>
