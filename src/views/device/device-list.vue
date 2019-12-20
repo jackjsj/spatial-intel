@@ -43,7 +43,7 @@
             <!-- 当前状态 -->
             <div class="ctrl-item">
               <p class="c32 b f14 sub-title">当前状态</p>
-              <div class="flex jcc cf2">
+              <div class=" flex jcc cf2">
                 <div class="current-state warm mr20">
                   <p class="f24">{{parseInt(item.temperature)}}°</p>
                   <p>当前温度</p>
@@ -54,37 +54,39 @@
                 </div>
               </div>
             </div>
-            <!-- <div class="ctrl-item">
-              <p class="c32 b f14 sub-title">自定义温度</p>
+            <div class="ctrl-item">
+              <p class="c32 b f14 sub-title" :class="{active:item.targetIndex==='temperature'}">自定义温度</p>
               <p class="c7c ml26">推荐温度为：36度。</p>
               <div class="cf2 slider-bar flex-col jcc">
                 <van-slider
                   class="temp-slider"
-                  v-model="temperature"
-                  active-color="#ee0a24">
+                  v-model="item.targetTemperature"
+                  active-color="#ee0a24"
+                  @change="(value)=>onSlideChange(item,value,'temperature')">
                   <div
                     slot="button"
                     class="slider-button temp-button">
-                    {{ temperature }}°
+                    {{ item.targetTemperature }}°
                   </div>
                 </van-slider>
               </div>
             </div>
             <div class="ctrl-item">
-              <p class="c32 b f14 sub-title">自定义湿度</p>
-              <div class="cf2 slider-bar flex-col jcc">
+              <p class="c32 b f14 sub-title" :class="{active:item.targetIndex==='humidity'}">自定义湿度</p>
+              <div class=" cf2 slider-bar flex-col jcc">
                 <van-slider
                   class="humidity-slider"
-                  v-model="humidity"
-                  active-color="#ee0a24">
+                  v-model="item.targetHumidity"
+                  active-color="#ee0a24"
+                  @change="(value)=>onSlideChange(item,value,'humidity')">
                   <div
                     slot="button"
                     class="slider-button humidity-button">
-                    {{ humidity }}
+                    {{ item.targetHumidity }}%
                   </div>
                 </van-slider>
               </div>
-            </div> -->
+            </div>
           </div>
           <!-- 离线遮罩 -->
           <div class="overlay flex aic jcc f24 b wh"
@@ -146,11 +148,11 @@ export default {
     getBtnBackground(btn, item) {
       return (btn, item) => {
         if (btn.name === '开启') {
-          return item.switchStatus
+          return item.switchStatus === 'on'
             ? btn.background
             : 'linear-gradient(136deg,rgba(255,255,255,1) 0%,gray 100%);';
         }
-        return item.switchStatus
+        return item.switchStatus === 'on'
           ? 'linear-gradient(136deg,rgba(255,255,255,1) 0%,gray 100%);'
           : btn.background;
       };
@@ -174,6 +176,44 @@ export default {
     });
   },
   methods: {
+    // 温度控制值变化
+    onSlideChange(item, value, deviceType) {
+      console.log(item, value);
+      if (this.linking) {
+        this.ws.send(
+          JSON.stringify({
+            action: 'update',
+            deviceid: item.deviceid,
+            apikey: this.apikey, // 用户的apikey
+            sequence: +new Date(),
+            params: {
+              deviceType,
+              mainSwitch: 'on',
+              targets: [
+                {
+                  targetHigh: String(value),
+                  reaction: {
+                    switch: 'off',
+                  },
+                },
+                {
+                  targetLow: String(value - 1),
+                  reaction: {
+                    switch: 'on',
+                  },
+                },
+              ],
+            },
+            ts: 0,
+            from: 'app',
+            userAgent: 'app',
+          }),
+        );
+      } else {
+        Toast('正在连接设备，请稍候...');
+      }
+    },
+
     // 获取设备列表
     async getDeviceList() {
       Toast.loading({
@@ -279,25 +319,85 @@ export default {
         if (message.action === 'update') {
           // 说明设备状态更新
           const { deviceid, params } = message;
-          const switchStatus = params.switch === 'on';
+          // const switchStatus = params.switch === 'on';
+          const {
+            currentHumidity,
+            currentTemperature,
+            targets,
+            deviceType,
+            switch: switchStatus,
+          } = params;
           const targetDevice = this.deviceList.filter(
             dev => dev.deviceid === deviceid,
           )[0];
           if (targetDevice) {
-            this.$set(targetDevice, 'switchStatus', switchStatus);
+            switchStatus &&
+              this.$set(targetDevice, 'switchStatus', switchStatus);
+            currentTemperature &&
+              this.$set(targetDevice, 'temperature', currentTemperature);
+            currentHumidity &&
+              this.$set(targetDevice, 'humidity', currentHumidity);
+            if (targets) {
+              const value = targets.filter(item => item.targetHigh)[0];
+              this.$set(targetDevice, 'targetIndex', deviceType);
+              if (deviceType === 'temperature') {
+                value &&
+                  this.$set(
+                    targetDevice,
+                    'targetTemperature',
+                    parseInt(value.targetHigh),
+                  );
+              } else if (deviceType === 'humidity') {
+                value &&
+                  this.$set(
+                    targetDevice,
+                    'targetHumidity',
+                    parseInt(value.targetHigh),
+                  );
+              }
+            }
           }
         }
-        if (message.params && message.params.switch) {
+        // 初始查询返回
+        if (message.params) {
           const { deviceid, params } = message;
-          const switchStatus = params.switch === 'on';
-          const { currentHumidity, currentTemperature } = params;
+          // const switchStatus = params.switch === 'on';
+          const {
+            currentHumidity,
+            currentTemperature,
+            targets,
+            deviceType,
+            switch: switchStatus,
+          } = params;
           const targetDevice = this.deviceList.filter(
             dev => dev.deviceid === deviceid,
           )[0];
           if (targetDevice) {
-            this.$set(targetDevice, 'switchStatus', switchStatus);
-            this.$set(targetDevice, 'temperature', currentTemperature);
-            this.$set(targetDevice, 'humidity', currentHumidity);
+            switchStatus &&
+              this.$set(targetDevice, 'switchStatus', switchStatus);
+            currentTemperature &&
+              this.$set(targetDevice, 'temperature', currentTemperature);
+            currentHumidity &&
+              this.$set(targetDevice, 'humidity', currentHumidity);
+            if (targets) {
+              const value = targets.filter(item => item.targetHigh)[0];
+              this.$set(targetDevice, 'targetIndex', deviceType);
+              if (deviceType === 'temperature') {
+                value &&
+                  this.$set(
+                    targetDevice,
+                    'targetTemperature',
+                    parseInt(value.targetHigh),
+                  );
+              } else if (deviceType === 'humidity') {
+                value &&
+                  this.$set(
+                    targetDevice,
+                    'targetHumidity',
+                    parseInt(value.targetHigh),
+                  );
+              }
+            }
           }
         }
         console.log('收到的消息：', message);
@@ -423,11 +523,15 @@ export default {
     display: inline-block;
     width: 16px;
     height: 16px;
-    background: rgb(45, 96, 238);
+    background: #c0cdef;
     border-radius: 50%;
     margin-right: 10px;
     box-sizing: border-box;
     border: 4px solid #c0cdef;
+  }
+  &.active::before {
+    border: 4px solid #c0cdef;
+    background: rgb(45, 96, 238);
   }
 }
 .ctrl-item {
