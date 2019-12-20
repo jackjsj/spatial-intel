@@ -62,6 +62,8 @@
                   class="temp-slider"
                   v-model="item.targetTemperature"
                   active-color="#ee0a24"
+                  :min="-20"
+                  :max="180"
                   @change="(value)=>onSlideChange(item,value,'temperature')">
                   <div
                     slot="button"
