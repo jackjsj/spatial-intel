@@ -293,7 +293,11 @@ export default {
           }).then(resp => {
             // 获取在线状态
             console.log(resp.result);
-            this.$set(dev, 'online', resp.result.online);
+            this.$set(
+              dev,
+              'online',
+              (resp.result && resp.result.online) || false,
+            );
           });
           this.getDeviceStatus(dev.deviceid);
         });
