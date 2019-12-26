@@ -35,7 +35,13 @@
     <!-- 新人推荐 -->
     <div class="card">
       <div class="card-content">
-        <p class="f14 b mb10">新人推荐</p>
+        <div class="mb10 flex jcb aic">
+          <p class="f14 b">新人推荐</p>
+          <p class="flex aic c7c f13 b">
+            <span class="mr10">全部</span>
+            <van-icon name="arrow" />
+          </p>
+        </div>
         <div class="freshman-recommands flex aic ova">
           <div class="mr18">
             <img :src="sample1" />
