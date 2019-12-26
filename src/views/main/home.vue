@@ -24,10 +24,10 @@
     <!-- swiper -->
     <div class="card">
       <van-swipe :autoplay="3000" indicator-color="white">
-        <van-swipe-item v-for="item in 3"
-          :key="item">
+        <van-swipe-item v-for="(item,index) in swiperImgs"
+          :key="index">
           <div class="flex aic jcc">
-            <img class="swiper-img" :src="sample3" />
+            <img class="swiper-img" :src="item" />
           </div>
         </van-swipe-item>
       </van-swipe>
@@ -110,7 +110,6 @@
 <script>
 import sample1 from '@/assets/images/sample1.png';
 import sample2 from '@/assets/images/sample2.png';
-import sample3 from '@/assets/images/sample3.png';
 import { deviceSortList } from '@/api/';
 
 const items = [
@@ -152,6 +151,13 @@ const myDevices = [
     num: 2,
   },
 ];
+
+const swiperImgs = [
+  require('@/assets/images/swiper1.png'),
+  require('@/assets/images/swiper2.png'),
+  require('@/assets/images/swiper3.png'),
+];
+
 export default {
   data() {
     return {
@@ -159,8 +165,8 @@ export default {
       items,
       sample1,
       sample2,
-      sample3,
       list: [],
+      swiperImgs,
     };
   },
   mounted() {
