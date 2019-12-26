@@ -41,9 +41,9 @@
           <!-- 温湿控制 -->
           <div v-if="item.ui === '恒温恒湿改装件'">
             <!-- 当前状态 -->
-            <div class="ctrl-item">
+            <div class="ctrl-item active">
               <p class="c32 b f14 sub-title">当前状态</p>
-              <div class=" flex jcc cf2">
+              <div class="mt15 flex jcc cf2">
                 <div class="current-state warm mr20">
                   <p class="f24">{{parseInt(item.temperature)}}°</p>
                   <p>当前温度</p>
@@ -55,8 +55,13 @@
               </div>
             </div>
             <div class="ctrl-item">
-              <p class="c32 b f14 sub-title" :class="{active:item.targetIndex==='temperature'}">自定义温度</p>
-              <p class="c7c ml26">推荐温度为：36度。</p>
+              <div class="flex aic jcb f14">
+                <p class="c32 b sub-title flex aic" :class="{active:item.targetIndex==='temperature'}">
+                  自定义温度
+                </p>
+                <van-icon name="edit" @click="editTarget('temperature')" />
+              </div>
+              <p class="mt15 c7c ml26">推荐温度为：36度。</p>
               <div class="cf2 slider-bar flex-col jcc">
                 <van-slider
                   class="temp-slider"
@@ -74,8 +79,13 @@
               </div>
             </div>
             <div class="ctrl-item">
-              <p class="c32 b f14 sub-title" :class="{active:item.targetIndex==='humidity'}">自定义湿度</p>
-              <div class=" cf2 slider-bar flex-col jcc">
+              <div class="flex aic jcb f14">
+                <p class="c32 b sub-title flex aic" :class="{active:item.targetIndex==='humidity'}">
+                  自定义湿度
+                </p>
+                <van-icon name="edit" @click="editTarget('humidity')" />
+              </div>
+              <div class="mt15 cf2 slider-bar flex-col jcc">
                 <van-slider
                   class="humidity-slider"
                   v-model="item.targetHumidity"
@@ -178,6 +188,8 @@ export default {
     });
   },
   methods: {
+    // 手动编辑目标值
+    editTarget(targetParam) {},
     // 温度控制值变化
     onSlideChange(item, value, deviceType) {
       console.log(item, value);
@@ -521,7 +533,6 @@ export default {
 }
 .sub-title {
   display: flex;
-  margin-bottom: 15px;
   margin-left: 10px;
   align-items: center;
   &::before {

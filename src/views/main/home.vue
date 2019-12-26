@@ -92,8 +92,8 @@
               v-for="group in loc.countGroup"
               :key="group.deviceGroup"
               @click="onTypeClick(group.deviceGroup, loc.deviceLocation, item.key)">
-              <!-- <div class="icon-wrapper mr10">
-              </div> -->
+              <div class="icon-wrapper mr10">
+              </div>
               <div class="tc fw600">
                 <p class="f13" style="color:#06121F">{{group.deviceGroup}}</p>
                 <p class="f10" style="color:#8C9198">{{group.num}}</p>
@@ -260,6 +260,8 @@ export default {
     rgba(245, 234, 218, 1) 0%,
     rgba(233, 200, 146, 1) 100%
   );
+  background-size: cover;
+  background-image: url(~@/assets/images/icon-1.png);
   border-radius: 50%;
 }
 .device-type-item {
@@ -267,8 +269,24 @@ export default {
   height: 80px;
   display: flex;
   flex: none;
-  border: 1px solid rgb(221, 227, 242);
+  border: 1px solid #e7ecf2;
   box-sizing: border-box;
+  background: #fafafa;
+  &:nth-child(2n) {
+    .icon-wrapper {
+      background-image: url(~@/assets/images/icon-2.png);
+    }
+  }
+  &:nth-child(4n - 1) {
+    .icon-wrapper {
+      background-image: url(~@/assets/images/icon-3.png);
+    }
+  }
+  &:nth-child(4n) {
+    .icon-wrapper {
+      background-image: url(~@/assets/images/icon-4.png);
+    }
+  }
 }
 .item-padding {
   width: 50%;
