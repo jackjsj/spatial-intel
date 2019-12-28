@@ -41,8 +41,8 @@
           <!-- 温湿控制 -->
           <div v-if="item.ui === '恒温恒湿改装件'">
             <!-- 当前状态 -->
-            <div class="ctrl-item active">
-              <p class="c32 b f14 sub-title">当前状态</p>
+            <div class="ctrl-item">
+              <p class="c32 b f14 sub-title active">当前状态</p>
               <div class="mt15 flex jcc cf2">
                 <div class="current-state warm mr20">
                   <p class="f24">{{parseInt(item.temperature)}}°</p>
@@ -54,12 +54,13 @@
                 </div>
               </div>
             </div>
-            <div class="ctrl-item">
+            <div class="ctrl-item" :class="{invalid:item.targetIndex!=='temperature'}">
               <div class="flex aic jcb f14">
-                <p class="c32 b sub-title flex aic" :class="{active:item.targetIndex==='temperature'}">
+                <p class="c32 b sub-title flex aic"
+                  :class="{active:item.targetIndex==='temperature'}">
                   自定义温度
                 </p>
-                <van-icon name="edit" @click="editTarget('temperature')" />
+                <van-icon name="edit" @click="editTarget('temperature',item)" />
               </div>
               <p class="mt15 c7c ml26">推荐温度为：36度。</p>
               <div class="cf2 slider-bar flex-col jcc">
@@ -67,23 +68,23 @@
                   class="temp-slider"
                   v-model="item.targetTemperature"
                   active-color="#ee0a24"
-                  :min="-20"
-                  :max="180"
+                  :min="-80"
+                  :max="80"
                   @change="(value)=>onSlideChange(item,value,'temperature')">
                   <div
                     slot="button"
                     class="slider-button temp-button">
-                    {{ item.targetTemperature }}°
+                    {{ item.targetTemperature || 0 }}°
                   </div>
                 </van-slider>
               </div>
             </div>
-            <div class="ctrl-item">
+            <div class="ctrl-item" :class="{invalid:item.targetIndex!=='humidity'}">
               <div class="flex aic jcb f14">
                 <p class="c32 b sub-title flex aic" :class="{active:item.targetIndex==='humidity'}">
                   自定义湿度
                 </p>
-                <van-icon name="edit" @click="editTarget('humidity')" />
+                <van-icon name="edit" @click="editTarget('humidity',item)" />
               </div>
               <div class="mt15 cf2 slider-bar flex-col jcc">
                 <van-slider
@@ -94,7 +95,7 @@
                   <div
                     slot="button"
                     class="slider-button humidity-button">
-                    {{ item.targetHumidity }}%
+                    {{ item.targetHumidity || 0 }}%
                   </div>
                 </van-slider>
               </div>
@@ -108,11 +109,24 @@
         </div>
       </div>
     </div>
+    <van-dialog
+      v-model="paramSetterVisible"
+      :title="`请输入指定${targetParam}`"
+      show-cancel-button
+      :before-close="(action,done)=>done(false)"
+      @confirm="onSetterConfirm"
+      @cancel="paramSetterVisible = false;">
+      <van-cell-group>
+        <van-field v-model="targetParamValue"
+          type="number"
+          :placeholder="`请输入指定${targetParam}`"
+          :error-message="targetParamValueError" />
+      </van-cell-group>
+    </van-dialog>
   </div>
 </template>
 
 <script>
-import { mapState } from 'vuex';
 import { Toast, Dialog } from 'vant';
 import { deleteOne, webSocketAp, getOneByDeviceid, deviceList } from '@/api';
 
@@ -151,9 +165,12 @@ export default {
       linking: false,
       group: '',
       deviceList: [],
-      temperature: 36,
-      humidity: 50,
       authType: '',
+      targetParam: '', // 目标参数名
+      targetParamValue: '', // 目标参数值
+      paramSetterVisible: false,
+      targetParamValueError: '', // 输入错误提示
+      editingItem: null, // 当前编辑的对象
     };
   },
   computed: {
@@ -184,12 +201,46 @@ export default {
         apikey,
         appid,
       };
-      this.connectWebsocket(this.wsOptions);
+      this.connectWebsocket();
     });
   },
   methods: {
+    // 参数设置器确认回调
+    onSetterConfirm() {
+      // 判断参数是否输入正确
+      const value = Number(this.targetParamValue);
+      let deviceType;
+      if (this.targetParam === '温度') {
+        deviceType = 'temperature';
+        // 最大值是80，最小值是-80
+        if (value > 80 || value < -80) {
+          this.targetParamValueError = '温度范围必须为-80°至80°之间';
+          return;
+        }
+        this.editingItem.targetTemperature = value;
+      } else if (this.targetParam === '湿度') {
+        deviceType = 'humidity';
+        if (value < 0 || value > 100) {
+          this.targetParamValueError = '湿度范围必须为0%至100%之间';
+          return;
+        }
+        this.editingItem.targetHumidity = value;
+      }
+      this.onSlideChange(this.editingItem, value, deviceType);
+      this.paramSetterVisible = false;
+    },
     // 手动编辑目标值
-    editTarget(targetParam) {},
+    editTarget(targetParam, item) {
+      this.editingItem = item;
+      if (targetParam === 'temperature') {
+        this.targetParam = '温度';
+        this.targetParamValue = item.targetTemperature;
+      } else if (targetParam === 'humidity') {
+        this.targetParam = '湿度';
+        this.targetParamValue = item.targetHumidity;
+      }
+      this.paramSetterVisible = true;
+    },
     // 温度控制值变化
     onSlideChange(item, value, deviceType) {
       console.log(item, value);
@@ -273,153 +324,173 @@ export default {
         });
       });
     },
+
+    // 握手
+    shakeHands() {
+      const { at, appid, apikey } = this.wsOptions;
+      // 握手
+      this.ws.send(
+        JSON.stringify({
+          action: 'userOnline',
+          at,
+          apikey,
+          appid,
+          nonce: 'absfefds',
+          ts: Math.round(new Date().getTime() / 1000),
+          userAgent: 'app',
+          sequence: +new Date(),
+          version: 8,
+        }),
+      );
+    },
+
+    // ws连接成功回调
+    onWsOpen() {
+      console.log('连接服务端WebSocket成功');
+      this.linking = true;
+      // 握手
+      this.shakeHands();
+      // 遍历查询设备在线状态
+      this.deviceList.forEach(dev => {
+        getOneByDeviceid({
+          deviceid: dev.deviceid,
+          deviceType: this.authType,
+        }).then(resp => {
+          // 获取在线状态
+          this.$set(
+            dev,
+            'online',
+            (resp.result && resp.result.online) || false,
+          );
+          dev.ui = resp.result.extra.extra.ui;
+        });
+        if (dev.online) {
+          this.getDeviceStatus(dev.deviceid);
+        }
+      });
+    },
+    // ws信息接收回调
+    onWsMessage(msg) {
+      const message = JSON.parse(msg.data);
+      const { deviceid, params, error } = message;
+      if (error === 403) {
+        const deviceName = this.deviceList.filter(
+          item => item.deviceid === deviceid,
+        )[0].name;
+        Dialog.alert({
+          title: '异常告警',
+          message: `您没有权限控制【${deviceName}】(${deviceid})设备，请尝试重新添加该设备，连接将会断开。`,
+        });
+        return;
+      }
+      // TODO: 这里用http请求设备当前状态，这样就不会触发onmessage了
+      if (message.params === undefined) {
+        this.getDeviceStatus(message.deviceid);
+      }
+      // 监听系统消息
+      if (message.action === 'sysmsg') {
+        // 说明设备在线离线发生变化
+        const { online } = params;
+        const targetDevice = this.deviceList.filter(
+          dev => dev.deviceid === deviceid,
+        )[0];
+        if (targetDevice) {
+          this.$set(targetDevice, 'online', online);
+        }
+      }
+      // 监听状态更新
+      if (message.action === 'update') {
+        // 说明设备状态更新
+        const {
+          currentHumidity,
+          currentTemperature,
+          targets,
+          deviceType,
+          switch: switchStatus,
+        } = params;
+        const targetDevice = this.deviceList.filter(
+          dev => dev.deviceid === deviceid,
+        )[0];
+        if (targetDevice) {
+          switchStatus && this.$set(targetDevice, 'switchStatus', switchStatus);
+          currentTemperature &&
+            this.$set(targetDevice, 'temperature', currentTemperature);
+          currentHumidity &&
+            this.$set(targetDevice, 'humidity', currentHumidity);
+          if (targets) {
+            // 有targets说明是温湿器
+            const value = targets.filter(item => item.targetHigh)[0];
+            this.$set(targetDevice, 'targetIndex', deviceType);
+            if (deviceType === 'temperature') {
+              value &&
+                this.$set(
+                  targetDevice,
+                  'targetTemperature',
+                  parseInt(value.targetHigh),
+                );
+            } else if (deviceType === 'humidity') {
+              value &&
+                this.$set(
+                  targetDevice,
+                  'targetHumidity',
+                  parseInt(value.targetHigh),
+                );
+            }
+          }
+        }
+      }
+      // 初始查询返回
+      if (message.params) {
+        const { deviceid, params } = message;
+        const {
+          currentHumidity,
+          currentTemperature,
+          targets,
+          deviceType,
+          switch: switchStatus,
+        } = params;
+        const targetDevice = this.deviceList.filter(
+          dev => dev.deviceid === deviceid,
+        )[0];
+        if (targetDevice) {
+          switchStatus && this.$set(targetDevice, 'switchStatus', switchStatus);
+          currentTemperature &&
+            this.$set(targetDevice, 'temperature', currentTemperature);
+          currentHumidity &&
+            this.$set(targetDevice, 'humidity', currentHumidity);
+          if (targets) {
+            const value = targets.filter(item => item.targetHigh)[0];
+            this.$set(targetDevice, 'targetIndex', deviceType);
+            if (deviceType === 'temperature') {
+              value &&
+                this.$set(
+                  targetDevice,
+                  'targetTemperature',
+                  parseInt(value.targetHigh),
+                );
+            } else if (deviceType === 'humidity') {
+              value &&
+                this.$set(
+                  targetDevice,
+                  'targetHumidity',
+                  parseInt(value.targetHigh),
+                );
+            }
+          }
+        }
+      }
+      console.log('收到的消息：', message);
+    },
     // 连接ws
-    connectWebsocket(options) {
-      const { domain, port, at, apikey, appid } = options;
+    connectWebsocket() {
+      const { domain, port, apikey } = this.wsOptions;
       this.apikey = apikey;
       const ws = new WebSocket(`wss://${domain}:${port}/api/ws`);
       this.ws = ws;
       // 监听连接成功
-      ws.onopen = () => {
-        console.log('连接服务端WebSocket成功');
-        this.linking = true;
-        // 握手
-        ws.send(
-          JSON.stringify({
-            action: 'userOnline',
-            at,
-            apikey,
-            appid,
-            nonce: 'absfefds',
-            ts: Math.round(new Date().getTime() / 1000),
-            userAgent: 'app',
-            sequence: +new Date(),
-            version: 8,
-          }),
-        );
-        // 遍历查询设备状态
-        this.deviceList.forEach(dev => {
-          getOneByDeviceid({
-            deviceid: dev.deviceid,
-            deviceType: this.authType,
-          }).then(resp => {
-            // 获取在线状态
-            console.log(resp.result);
-            this.$set(
-              dev,
-              'online',
-              (resp.result && resp.result.online) || false,
-            );
-          });
-          this.getDeviceStatus(dev.deviceid);
-        });
-      };
+      ws.onopen = this.onWsOpen;
       // 监听服务端消息(接收消息)
-      ws.onmessage = msg => {
-        const message = JSON.parse(msg.data);
-        // TODO: 这里用http请求设备当前状态，这样就不会触发onmessage了
-        if (message.params === undefined) {
-          this.getDeviceStatus(message.deviceid);
-        }
-        // 监听系统消息
-        if (message.action === 'sysmsg') {
-          // 说明设备在线离线发生变化
-          const { deviceid, params } = message;
-          const { online } = params;
-          const targetDevice = this.deviceList.filter(
-            dev => dev.deviceid === deviceid,
-          )[0];
-          if (targetDevice) {
-            this.$set(targetDevice, 'online', online);
-          }
-        }
-        // 监听状态更新
-        if (message.action === 'update') {
-          // 说明设备状态更新
-          const { deviceid, params } = message;
-          // const switchStatus = params.switch === 'on';
-          const {
-            currentHumidity,
-            currentTemperature,
-            targets,
-            deviceType,
-            switch: switchStatus,
-          } = params;
-          const targetDevice = this.deviceList.filter(
-            dev => dev.deviceid === deviceid,
-          )[0];
-          if (targetDevice) {
-            switchStatus &&
-              this.$set(targetDevice, 'switchStatus', switchStatus);
-            currentTemperature &&
-              this.$set(targetDevice, 'temperature', currentTemperature);
-            currentHumidity &&
-              this.$set(targetDevice, 'humidity', currentHumidity);
-            if (targets) {
-              const value = targets.filter(item => item.targetHigh)[0];
-              this.$set(targetDevice, 'targetIndex', deviceType);
-              if (deviceType === 'temperature') {
-                value &&
-                  this.$set(
-                    targetDevice,
-                    'targetTemperature',
-                    parseInt(value.targetHigh),
-                  );
-              } else if (deviceType === 'humidity') {
-                value &&
-                  this.$set(
-                    targetDevice,
-                    'targetHumidity',
-                    parseInt(value.targetHigh),
-                  );
-              }
-            }
-          }
-        }
-        // 初始查询返回
-        if (message.params) {
-          const { deviceid, params } = message;
-          // const switchStatus = params.switch === 'on';
-          const {
-            currentHumidity,
-            currentTemperature,
-            targets,
-            deviceType,
-            switch: switchStatus,
-          } = params;
-          const targetDevice = this.deviceList.filter(
-            dev => dev.deviceid === deviceid,
-          )[0];
-          if (targetDevice) {
-            switchStatus &&
-              this.$set(targetDevice, 'switchStatus', switchStatus);
-            currentTemperature &&
-              this.$set(targetDevice, 'temperature', currentTemperature);
-            currentHumidity &&
-              this.$set(targetDevice, 'humidity', currentHumidity);
-            if (targets) {
-              const value = targets.filter(item => item.targetHigh)[0];
-              this.$set(targetDevice, 'targetIndex', deviceType);
-              if (deviceType === 'temperature') {
-                value &&
-                  this.$set(
-                    targetDevice,
-                    'targetTemperature',
-                    parseInt(value.targetHigh),
-                  );
-              } else if (deviceType === 'humidity') {
-                value &&
-                  this.$set(
-                    targetDevice,
-                    'targetHumidity',
-                    parseInt(value.targetHigh),
-                  );
-              }
-            }
-          }
-        }
-        console.log('收到的消息：', message);
-      };
+      ws.onmessage = this.onWsMessage;
       // 监听连接失败
       ws.onerror = () => {
         console.log('连接失败，正在重连...');
@@ -430,6 +501,7 @@ export default {
         console.log('连接关闭');
       };
     },
+    // 控制按钮点击事件
     onBtnClick(item, btn) {
       // 控制设备，即更新设备状态
       if (this.linking) {
@@ -449,6 +521,7 @@ export default {
         Toast('正在连接设备，请稍候...');
       }
     },
+    // 获取设备基本状态
     getDeviceStatus(deviceid) {
       if (this.linking) {
         this.ws.send(
@@ -467,6 +540,7 @@ export default {
       }
     },
   },
+
   beforeDestroy() {
     this.ws.close();
   },
@@ -554,6 +628,10 @@ export default {
 .ctrl-item {
   padding: 16px 0;
   border-top: 1px solid #ebedff;
+  transition: all 1s;
+  &.invalid {
+    filter: grayscale(100%);
+  }
 }
 
 .temp-slider {
@@ -583,7 +661,7 @@ export default {
   box-sizing: border-box;
   color: #f2f2f2;
   font-size: 22px;
-  font-weight: 400px;
+  font-weight: 400;
   line-height: 56px;
   text-align: center;
 }

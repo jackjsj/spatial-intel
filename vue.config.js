@@ -4,12 +4,12 @@ module.exports = {
   lintOnSave: true,
   devServer: {
     proxy: {
-      '/spaceIngelligent': {
+      '/space-ingelligent': {
         // target: 'http://mj002.vipgz2.idcfengye.com/',
         target: 'http://47.105.171.29:8082/',
         changeOrigin: true,
         pathRewrite: {
-          '^/spaceIngelligent': '/space-ingelligent',
+          '^/space-ingelligent': '/space-ingelligent',
         },
       },
     },

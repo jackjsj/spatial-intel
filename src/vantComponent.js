@@ -55,12 +55,12 @@ Vue.use(NavBar)
   .use(Swipe)
   .use(Overlay)
   .use(Slider)
-  .use(SwipeItem);
+  .use(SwipeItem)
+  .use(Dialog);
 // Vue.use(Panel);
 // Vue.use(List);
 // Vue.use(Search);
 
-// Vue.use(Dialog);
 // Vue.use(ActionSheet);
 // Vue.use(Slider);
 // Vue.use(Uploader);

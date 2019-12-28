@@ -7,7 +7,8 @@ const instance = axios.create({
     'Content-Type': 'application/json',
   },
   // baseURL: 'http://mj002.vipgz2.idcfengye.com/spaceIngelligent/kuzhai',
-  baseURL: '/spaceIngelligent/kuzhai',
+  // baseURL: '/spaceIngelligent/kuzhai',
+  baseURL: '/space-ingelligent/kuzhai',
   timeout: 60000,
 });
 // 添加响应拦截器
