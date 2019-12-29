@@ -94,7 +94,9 @@
                 class="vc-btn"
                 slot="button"
                 size="small"
-                type="primary">发送验证码</van-button>
+                type="primary"
+                :disabled="countDown>0"
+                @click="getVCode">{{countDown>0?`${countDown}s` :'发送验证码'}}</van-button>
             </van-field>
             <van-button class="login-btn"
               @click="register">
@@ -129,7 +131,7 @@
 </template>
 
 <script>
-import { register, login } from '@/api/';
+import { register, login, getVCode } from '@/api/';
 
 export default {
   data() {
@@ -146,12 +148,16 @@ export default {
       vCode: '',
       newPassword: '',
       newPasswordConfirm: '',
+      countDown: 0,
     };
   },
   methods: {
     toggleLoginWay() {
       this.mode = this.mode === 'loginByPwd' ? 'loginByVc' : 'loginByPwd';
     },
+    /**
+     * 登录
+     */
     async login() {
       if (!/^(?:(?:\+|00)86)?1[3-9]\d{9}$/.test(this.phoneNum)) {
         Toast('请输入正确的手机号');
@@ -173,21 +179,71 @@ export default {
       localStorage.setItem('SI_TOKEN', loginResp.result.token);
       this.$router.replace('/');
     },
+    /**
+     * 判断手机号是否有效
+     */
+    isPhoneValid(phoneNum) {
+      return /^(?:(?:\+|00)86)?1[3-9]\d{9}$/.test(phoneNum);
+    },
+    /**
+     * 注册
+     */
     async register() {
       // 判断手机号是否有效
-      if (!/^(?:(?:\+|00)86)?1[3-9]\d{9}$/.test(this.phoneNum)) {
+      if (!this.isPhoneValid(this.phoneNum)) {
         Toast('请输入正确的手机号');
+        return;
+      }
+      // 判断密码是否为空
+      if (this.password.trim() === '') {
+        Toast('请输入密码');
+        return;
+      }
+      // 判断验证码是否为空
+      if (this.vCode.trim() === '') {
+        Toast('请输入验证码');
         return;
       }
       const registerResp = await register({
         mobile: this.phoneNum,
         password: this.password,
+        msgCode: this.vCode,
       });
       if (registerResp.code !== '1') {
         Toast(registerResp.msg);
         return;
       }
       this.login();
+    },
+    /**
+     * 获取验证码
+     */
+    async getVCode() {
+      // 1. 判断手机号是否有效
+      if (!this.isPhoneValid(this.phoneNum)) {
+        Toast('请输入正确的手机号');
+        return;
+      }
+      // 如果当前没有倒计时
+      if (!this.computeTime) {
+        this.countDown = 60;
+        let intervalId = setInterval(() => {
+          this.countDown--;
+          if (this.countDown <= 0) {
+            clearInterval(intervalId);
+          }
+        }, 1000);
+        // 发送ajax请求(向指定手机号发送验证码短信)
+        const resp = await getVCode({
+          mobile: this.phoneNum,
+        });
+        if (resp.code !== '1') {
+          this.countDown = 0;
+          clearInterval(intervalId);
+          intervalId = undefined;
+        }
+        Toast(resp.msg);
+      }
     },
   },
 };

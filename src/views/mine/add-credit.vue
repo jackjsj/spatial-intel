@@ -41,16 +41,16 @@
         <div class="flex jcb mb10">
           <div
             class="package-item flex-col"
-            :class="{active:current === item}"
-            v-for="item in 3"
-            :key="item"
+            :class="{active:current.id === item.id}"
+            v-for="item in packageList"
+            :key="item.id"
             @click="current = item">
-            <div class="flex-none package-title">每月专享88折</div>
+            <div class="flex-none package-title">每月专享{{item.discount*100}}折</div>
             <div class="flex-col aic jcc flex-auto">
-              <p class="cf2 f14 b">连续包月</p>
-              <p class="cf2 fw400">循环存储3天 录像</p>
-              <p class="f400 c7c deleted-text">￥9.9</p>
-              <p class="mc-yellow f16 b">￥8.8</p>
+              <p class="cf2 f14 b">{{item.name}}</p>
+              <p class="cf2 fw400">{{item.detail}}</p>
+              <p class="f400 c7c deleted-text">￥{{item.originalPrice}}</p>
+              <p class="mc-yellow f16 b">￥{{item.price}}</p>
             </div>
           </div>
         </div>
@@ -67,14 +67,15 @@
       <!-- 优惠券 -->
       <div class="card pay-way flex aic jcb">
         <p class="c32 f13 b">支付方式</p>
-        <van-checkbox class="mc-yellow"
+        <p class="c32 b">微信</p>
+        <!-- <van-checkbox class="mc-yellow"
           v-model="payWay">
-          <p class="c32 b">支付宝</p>
-        </van-checkbox>
+        </van-checkbox> -->
       </div>
       <div class="card btn-wrapper flex-col">
         <div class="mb10">
-          <van-button class="btn">立即开通</van-button>
+          <van-button class="btn"
+            @click="buyNow">立即开通</van-button>
         </div>
         <div class="flex jcc">
           <van-checkbox class="tc" shape="square"
@@ -86,10 +87,32 @@
 
       </div>
     </div>
+    <!-- 支付二维码弹框 -->
+    <van-popup v-model="qrCodePopupVisible"
+      closeable
+      :close-on-click-overlay="false"
+      @close="checkTimes = 999">
+      <div class="qrcode-wrapper flex aic jcc">
+        <img :src="qrCodeImg" />
+      </div>
+      <p class="p20 tc b">请使用截屏功能将二维码保存至相册，然后在微信中使用扫一扫，从相册选取二维码完成支付</p>
+      <!-- <div class="tc mb10">
+        <van-button
+          @click="saveQrCode">下载二维码到相册</van-button>
+      </div> -->
+    </van-popup>
   </div>
 </template>
 
 <script>
+import {
+  rechargePackageList,
+  createOrder,
+  submitOrder,
+  getQrCode,
+  payResult,
+} from '@/api/';
+
 const menus = [
   {
     name: '套餐转移',
@@ -108,11 +131,161 @@ export default {
   data() {
     return {
       menus,
-      current: '',
+      current: {},
       autoRenew: false,
       isRead: false,
-      payWay: '',
+      payWay: '微信',
+      packageList: [],
+      qrCodePopupVisible: false,
+      qrCodeImg: '',
+      checkTimes: 0, // 查询次数
     };
+  },
+  mounted() {
+    this.getPackageList();
+  },
+  methods: {
+    // 获取套餐列表
+    async getPackageList() {
+      Toast.loading({
+        duration: 0,
+        message: '正在加载...',
+        overlay: true,
+      });
+      const resp = await rechargePackageList({
+        limit: '3',
+      });
+      if (resp.code === '1') {
+        const { list } = resp.result;
+        this.packageList = list;
+        [this.current] = list;
+        Toast.clear();
+      } else {
+        Toast(resp.msg);
+      }
+    },
+    // 立即开通
+    buyNow() {
+      // 判断是否阅读协议
+      if (!this.isRead) {
+        Toast('必须同意《云服务购买协议》和《自动续费协议》');
+        return;
+      }
+      // 创建订单
+      this.createOrder();
+    },
+
+    /**
+     * 创建订单
+     */
+    async createOrder() {
+      Toast.loading({
+        duration: 0,
+        message: '正在生成订单...',
+        overlay: true,
+      });
+      const resp = await createOrder({
+        packagesID: String(this.current.id),
+      });
+      if (resp.code === '1') {
+        const { orderNum } = resp.result;
+        // 提交订单
+        this.submitOrder({
+          ip: '192.168.31.137',
+          orderNum,
+        });
+      } else {
+        Toast(resp.msg);
+      }
+    },
+
+    /**
+     * 提交订单
+     */
+    async submitOrder(options) {
+      Toast.loading({
+        duration: 0,
+        message: '正在提交订单...',
+        overlay: true,
+      });
+      const resp = await submitOrder(options);
+      if (resp.code === '1') {
+        const { orderNum } = resp.result;
+        // 获取支付二维码
+        this.getQrCode(orderNum);
+      } else {
+        Toast(resp.msg);
+      }
+    },
+
+    /**
+     * 获取支付二维码
+     */
+    async getQrCode(orderNum) {
+      Toast.loading({
+        duration: 0,
+        message: '正在生成支付二维码...',
+        overlay: true,
+      });
+      const resp = await getQrCode({
+        orderNum,
+      });
+      this.qrCodeImg = `data:image/png;base64,${btoa(
+        new Uint8Array(resp).reduce(
+          (data, byte) => data + String.fromCharCode(byte),
+          '',
+        ),
+      )}`;
+      this.qrCodePopupVisible = true;
+      Toast.clear();
+      // 查询支付状态
+      this.checkTimes = 0;
+      this.checkPayStatus(orderNum);
+    },
+
+    // 保存二维码
+    saveQrCode() {
+      // 通过创建a标签实现
+      const link = document.createElement('a');
+      link.href = this.qrCodeImg;
+      // 对下载的文件命名
+      link.download = `${+new Date()}qrcode.png`;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+    },
+
+    /**
+     * 查询支付状态
+     */
+    async checkPayStatus(orderNum) {
+      const resp = await payResult({
+        orderNum,
+      });
+      if (resp.code === '1') {
+        const { status, content } = resp.result;
+        if (status === '2') {
+          // 未支付
+          if (this.checkTimes < 10) {
+            setTimeout(
+              () => {
+                this.checkPayStatus(orderNum); // 再次查询
+                this.checkTimes++;
+              },
+              this.checkTimes < 2 ? 3000 : 1000,
+            );
+          }
+        } else {
+          this.qrCodePopupVisible = false;
+          Dialog.alert({
+            title: content,
+            showCancelButton: false,
+          });
+        }
+      } else {
+        Toast(resp.msg);
+      }
+    },
   },
 };
 </script>
@@ -214,6 +387,14 @@ export default {
 .van-checkbox {
   display: flex;
   align-items: center;
+}
+.qrcode-wrapper {
+  width: 300px;
+  height: 300px;
+  margin-top: 30px;
+  img {
+    width: 100%;
+  }
 }
 </style>
 <style lang="scss">
