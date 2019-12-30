@@ -363,10 +363,10 @@ export default {
             (resp.result && resp.result.online) || false,
           );
           dev.ui = resp.result.extra.extra.ui;
+          if (dev.online) {
+            this.getDeviceStatus(dev.deviceid);
+          }
         });
-        if (dev.online) {
-          this.getDeviceStatus(dev.deviceid);
-        }
       });
     },
     // ws信息接收回调
@@ -441,7 +441,6 @@ export default {
       }
       // 初始查询返回
       if (message.params) {
-        const { deviceid, params } = message;
         const {
           currentHumidity,
           currentTemperature,
