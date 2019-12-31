@@ -14,10 +14,10 @@
         <div class="user-info flex">
           <div class="avatar mr10 flex-none"></div>
           <div class="flex-col jcb lh1 cf2">
-            <p class="f17 fw400 mb5">13666365656</p>
+            <p class="f17 fw400 mb5">{{userInfo.phoneNum}}</p>
             <div class="f12">
               <p class="tag">当前余额0元</p>
-              <p class="tag">2019.12.12到期，已开启自动续费</p>
+              <!-- <p class="tag">2019.12.12到期，已开启自动续费</p> -->
             </div>
           </div>
         </div>
@@ -139,9 +139,11 @@ export default {
       qrCodePopupVisible: false,
       qrCodeImg: '',
       checkTimes: 0, // 查询次数
+      userInfo: {},
     };
   },
   mounted() {
+    this.userInfo = JSON.parse(localStorage.getItem('USERINFO')) || {};
     this.getPackageList();
   },
   methods: {

@@ -177,6 +177,9 @@ export default {
         return;
       }
       localStorage.setItem('SI_TOKEN', loginResp.result.token);
+      localStorage.setItem('USERINFO', JSON.stringify({
+        phoneNum: this.phoneNum,
+      }));
       this.$router.replace('/');
     },
     /**

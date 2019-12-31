@@ -102,26 +102,40 @@
             </div>
           </div>
           <!-- 离线遮罩 -->
-          <div class="overlay flex aic jcc f24 b wh"
+          <!-- <div class="overlay flex aic jcc f24 b wh"
             v-show="!item.online">
             离线
-          </div>
+          </div> -->
         </div>
       </div>
     </div>
     <van-dialog
       v-model="paramSetterVisible"
-      :title="`请输入指定${targetParam}`"
+      :title="`请设置${targetParam}上下限`"
       show-cancel-button
       :before-close="(action,done)=>done(false)"
       @confirm="onSetterConfirm"
       @cancel="paramSetterVisible = false;">
-      <van-cell-group>
-        <van-field v-model="targetParamValue"
-          type="number"
-          :placeholder="`请输入指定${targetParam}`"
-          :error-message="targetParamValueError" />
-      </van-cell-group>
+      <div class="p20">
+        <van-cell-group :border="false">
+          <van-field v-model="targetParamValue"
+            label="高于"
+            type="number"
+            :error-message="targetParamValueError">
+            <template #right-icon>
+              <span>{{targetParam==='温度'?'℃':'%'}} 时关闭</span>
+            </template>
+          </van-field>
+          <van-field v-model="targetParamValue"
+            label="低于"
+            type="number"
+            :error-message="targetParamValueError">
+            <template #right-icon>
+              <span>{{targetParam==='温度'?'℃':'%'}} 时开启</span>
+            </template>
+          </van-field>
+        </van-cell-group>
+      </div>
     </van-dialog>
   </div>
 </template>
@@ -239,11 +253,11 @@ export default {
         this.targetParam = '湿度';
         this.targetParamValue = item.targetHumidity;
       }
+      this.targetParamValueError = '';
       this.paramSetterVisible = true;
     },
     // 温度控制值变化
     onSlideChange(item, value, deviceType) {
-      console.log(item, value);
       if (this.linking) {
         this.ws.send(
           JSON.stringify({
@@ -684,6 +698,12 @@ export default {
   .van-slider__bar {
     height: 10px !important;
     background: transparent !important;
+  }
+  .van-field__label {
+    width: 50px;
+  }
+  .van-field__right-icon {
+    color: #323233;
   }
 }
 </style>
