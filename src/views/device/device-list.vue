@@ -66,15 +66,15 @@
               <div class="cf2 slider-bar flex-col jcc">
                 <van-slider
                   class="temp-slider"
-                  v-model="item.targetTemperature"
+                  v-model="item.targetHighTemperature"
                   active-color="#ee0a24"
-                  :min="-80"
-                  :max="80"
-                  @change="(value)=>onSlideChange(item,value,'temperature')">
+                  :min="-30"
+                  :max="130"
+                  @change="(value)=>onSlideChange(item,[value,null],'temperature')">
                   <div
                     slot="button"
                     class="slider-button temp-button">
-                    {{ item.targetTemperature || 0 }}°
+                    {{ item.targetHighTemperature || 0 }}°
                   </div>
                 </van-slider>
               </div>
@@ -89,13 +89,13 @@
               <div class="mt15 cf2 slider-bar flex-col jcc">
                 <van-slider
                   class="humidity-slider"
-                  v-model="item.targetHumidity"
+                  v-model="item.targetHighHumidity"
                   active-color="#ee0a24"
-                  @change="(value)=>onSlideChange(item,value,'humidity')">
+                  @change="(value)=>onSlideChange(item,[value,null],'humidity')">
                   <div
                     slot="button"
                     class="slider-button humidity-button">
-                    {{ item.targetHumidity || 0 }}%
+                    {{ item.targetHighHumidity || 0 }}%
                   </div>
                 </van-slider>
               </div>
@@ -118,7 +118,7 @@
       @cancel="paramSetterVisible = false;">
       <div class="p20">
         <van-cell-group :border="false">
-          <van-field v-model="targetParamValue"
+          <van-field v-model="targetParamHighValue"
             label="高于"
             type="number"
             :error-message="targetParamValueError">
@@ -126,7 +126,7 @@
               <span>{{targetParam==='温度'?'℃':'%'}} 时关闭</span>
             </template>
           </van-field>
-          <van-field v-model="targetParamValue"
+          <van-field v-model="targetParamLowValue"
             label="低于"
             type="number"
             :error-message="targetParamValueError">
@@ -181,7 +181,8 @@ export default {
       deviceList: [],
       authType: '',
       targetParam: '', // 目标参数名
-      targetParamValue: '', // 目标参数值
+      targetParamHighValue: '', // 目标参数值，高值
+      targetParamLowValue: '', // 目标参数值，低值
       paramSetterVisible: false,
       targetParamValueError: '', // 输入错误提示
       editingItem: null, // 当前编辑的对象
@@ -222,25 +223,38 @@ export default {
     // 参数设置器确认回调
     onSetterConfirm() {
       // 判断参数是否输入正确
-      const value = Number(this.targetParamValue);
+      const highValue = Number(this.targetParamHighValue);
+      const lowValue = Number(this.targetParamLowValue);
       let deviceType;
       if (this.targetParam === '温度') {
         deviceType = 'temperature';
-        // 最大值是80，最小值是-80
-        if (value > 80 || value < -80) {
-          this.targetParamValueError = '温度范围必须为-80°至80°之间';
+        // 最大值是130，最小值是-30
+        if (
+          highValue > 130 ||
+          highValue < -30 ||
+          lowValue > 130 ||
+          lowValue < -30
+        ) {
+          this.targetParamValueError = '温度范围必须为-30°至130°之间';
           return;
         }
-        this.editingItem.targetTemperature = value;
+        this.editingItem.targetHighTemperature = highValue;
+        this.editingItem.targetLowTemperature = lowValue;
       } else if (this.targetParam === '湿度') {
         deviceType = 'humidity';
-        if (value < 0 || value > 100) {
+        if (
+          highValue < 0 ||
+          highValue > 100 ||
+          lowValue < 0 ||
+          lowValue > 100
+        ) {
           this.targetParamValueError = '湿度范围必须为0%至100%之间';
           return;
         }
-        this.editingItem.targetHumidity = value;
+        this.editingItem.targetHighHumidity = highValue;
+        this.editingItem.targetLowHumidity = lowValue;
       }
-      this.onSlideChange(this.editingItem, value, deviceType);
+      this.onSlideChange(this.editingItem, [highValue, lowValue], deviceType);
       this.paramSetterVisible = false;
     },
     // 手动编辑目标值
@@ -248,17 +262,27 @@ export default {
       this.editingItem = item;
       if (targetParam === 'temperature') {
         this.targetParam = '温度';
-        this.targetParamValue = item.targetTemperature;
+        this.targetParamHighValue = item.targetHighTemperature;
+        this.targetParamLowValue = item.targetLowTemperature;
       } else if (targetParam === 'humidity') {
         this.targetParam = '湿度';
-        this.targetParamValue = item.targetHumidity;
+        this.targetParamHighValue = item.targetHighHumidity;
+        this.targetParamLowValue = item.targetLowHumidity;
       }
       this.targetParamValueError = '';
       this.paramSetterVisible = true;
     },
     // 温度控制值变化
-    onSlideChange(item, value, deviceType) {
+    onSlideChange(item, values, deviceType) {
+      console.log(item);
       if (this.linking) {
+        // 判断是否设置了下限目标
+        const targetLow =
+          item[
+            item.targetIndex === 'temperature'
+              ? 'targetLowTemperature'
+              : 'targetLowHumidity'
+          ];
         this.ws.send(
           JSON.stringify({
             action: 'update',
@@ -270,13 +294,15 @@ export default {
               mainSwitch: 'on',
               targets: [
                 {
-                  targetHigh: String(value),
+                  targetHigh: String(values[0]),
                   reaction: {
                     switch: 'off',
                   },
                 },
                 {
-                  targetLow: String(value - 1),
+                  targetLow: values[1]
+                    ? String(values[1])
+                    : targetLow || String(values[0] - 5),
                   reaction: {
                     switch: 'on',
                   },
@@ -433,22 +459,39 @@ export default {
             this.$set(targetDevice, 'humidity', currentHumidity);
           if (targets) {
             // 有targets说明是温湿器
-            const value = targets.filter(item => item.targetHigh)[0];
+            const highValue = targets.filter(item => item.targetHigh)[0];
+            const lowValue = targets.filter(item => item.lowValue)[0];
             this.$set(targetDevice, 'targetIndex', deviceType);
             if (deviceType === 'temperature') {
-              value &&
+              if (highValue) {
                 this.$set(
                   targetDevice,
-                  'targetTemperature',
-                  parseInt(value.targetHigh),
+                  'targetHighTemperature',
+                  parseInt(highValue.targetHigh),
                 );
+              }
+              if (lowValue) {
+                this.$set(
+                  targetDevice,
+                  'targetLowTemperature',
+                  parseInt(lowValue.targetLow),
+                );
+              }
             } else if (deviceType === 'humidity') {
-              value &&
+              if (highValue) {
                 this.$set(
                   targetDevice,
                   'targetHumidity',
-                  parseInt(value.targetHigh),
+                  parseInt(highValue.targetHigh),
                 );
+              }
+              if (lowValue) {
+                this.$set(
+                  targetDevice,
+                  'targetHumidity',
+                  parseInt(lowValue.targetHigh),
+                );
+              }
             }
           }
         }
@@ -472,22 +515,39 @@ export default {
           currentHumidity &&
             this.$set(targetDevice, 'humidity', currentHumidity);
           if (targets) {
-            const value = targets.filter(item => item.targetHigh)[0];
+            const highValue = targets.filter(item => item.targetHigh)[0];
+            const lowValue = targets.filter(item => item.targetLow)[0];
             this.$set(targetDevice, 'targetIndex', deviceType);
             if (deviceType === 'temperature') {
-              value &&
+              if (highValue) {
                 this.$set(
                   targetDevice,
-                  'targetTemperature',
-                  parseInt(value.targetHigh),
+                  'targetHighTemperature',
+                  parseInt(highValue.targetHigh),
                 );
+              }
+              if (lowValue) {
+                this.$set(
+                  targetDevice,
+                  'targetLowTemperature',
+                  parseInt(lowValue.targetLow),
+                );
+              }
             } else if (deviceType === 'humidity') {
-              value &&
+              if (highValue) {
                 this.$set(
                   targetDevice,
                   'targetHumidity',
-                  parseInt(value.targetHigh),
+                  parseInt(highValue.targetHigh),
                 );
+              }
+              if (lowValue) {
+                this.$set(
+                  targetDevice,
+                  'targetHumidity',
+                  parseInt(lowValue.targetHigh),
+                );
+              }
             }
           }
         }
