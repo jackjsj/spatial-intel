@@ -1,27 +1,30 @@
 // 设备协议
-export const rollingDoorPtl = [
+export const rollingDoorCtrls = [
   {
     name: '上拉',
-    actionParams: {
+    value: 1,
+    params: {
       op: 1,
     },
+    icon: 'arrow-up',
+    background: 'linear-gradient(132deg,rgba(207,255,238,1) 0%,rgba(98,236,158,1) 100%);',
   },
   {
     name: '下拉',
-    actionParams: {
+    value: 3,
+    params: {
       op: 3,
     },
+    icon: 'arrow-down',
+    background: 'linear-gradient(136deg,rgba(255,242,213,1) 0%,rgba(242,187,132,1) 100%);',
   },
   {
-    name: '锁定',
-    actionParams: {
-      lock: 1, // 0代表未锁，1代表锁机械开关和遥控器，2代表只锁机械开关
-    },
-  },
-  {
-    name: '停止',
-    actionParams: {
+    name: '暂停',
+    value: 2,
+    params: {
       op: 2,
     },
+    icon: 'pause',
+    background: 'linear-gradient(129deg,rgba(254,227,218,1) 0%,rgba(248,135,147,1) 100%);',
   },
 ];

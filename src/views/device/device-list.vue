@@ -26,7 +26,7 @@
         </div>
         <div class="rel pt10">
           <!-- 控制按钮 -->
-          <div class="flex jca mb15">
+          <div class="flex jca mb15" v-if="item.ui !== '智能卷帘门'">
             <div
               class="btn-item flex-col aic"
               v-for="btn in controls"
@@ -60,17 +60,22 @@
                   :class="{active:item.targetIndex==='temperature'}">
                   自定义温度
                 </p>
-                <van-icon name="edit" @click="editTarget('temperature',item)" />
+                <div class="edit-btn-wrapper" :class="{active:autoMode}">
+                  <van-icon name="edit" @click="editTarget('temperature',item)" />
+                  <p class="mode-tag abs f12 b g3 mode-tag-auto"
+                    :class="{opa0:!autoMode || item.targetIndex !=='temperature'}">自动模式</p>
+                </div>
               </div>
               <p class="mt15 c7c ml26">推荐温度为：36度。</p>
-              <div class="cf2 slider-bar flex-col jcc">
+              <div class="cf2 slider-bar flex-col jcc"
+                :class="{invalid:autoMode}">
                 <van-slider
                   class="temp-slider"
                   v-model="item.targetHighTemperature"
                   active-color="#ee0a24"
                   :min="-30"
                   :max="130"
-                  @change="(value)=>onSlideChange(item,[value,null],'temperature')">
+                  @change="(value)=>onSlideChange(item,[value,undefined],'temperature')">
                   <div
                     slot="button"
                     class="slider-button temp-button">
@@ -78,20 +83,26 @@
                   </div>
                 </van-slider>
               </div>
+              <p class="f12 b g3 tc mode-tag" :class="{opa0:autoMode || item.targetIndex !== 'temperature'}">手动模式</p>
             </div>
             <div class="ctrl-item" :class="{invalid:item.targetIndex!=='humidity'}">
               <div class="flex aic jcb f14">
                 <p class="c32 b sub-title flex aic" :class="{active:item.targetIndex==='humidity'}">
                   自定义湿度
                 </p>
-                <van-icon name="edit" @click="editTarget('humidity',item)" />
+                <div class="edit-btn-wrapper" :class="{active:autoMode}">
+                  <van-icon name="edit" @click="editTarget('humidity',item)" />
+                  <p class="mode-tag abs f12 b g3 mode-tag-auto"
+                    :class="{opa0:!autoMode || item.targetIndex !=='humidity'}">自动模式</p>
+                </div>
               </div>
-              <div class="mt15 cf2 slider-bar flex-col jcc">
+              <div class="mt15 cf2 slider-bar flex-col jcc"
+                :class="{invalid:autoMode}">
                 <van-slider
                   class="humidity-slider"
                   v-model="item.targetHighHumidity"
                   active-color="#ee0a24"
-                  @change="(value)=>onSlideChange(item,[value,null],'humidity')">
+                  @change="(value)=>onSlideChange(item,[value,undefined],'humidity')">
                   <div
                     slot="button"
                     class="slider-button humidity-button">
@@ -99,13 +110,28 @@
                   </div>
                 </van-slider>
               </div>
+              <p class="f12 b g3 tc mode-tag" :class="{opa0:autoMode || item.targetIndex !== 'humidity'}">手动模式</p>
+            </div>
+          </div>
+          <!-- 智能卷帘门 -->
+          <div class="flex jca mb15" v-if="item.ui === '智能卷帘门'">
+            <div
+              class="btn-item flex-col aic"
+              v-for="btn in rollingDoorCtrls"
+              :key="btn.name"
+              @click="onBtnClick(item, btn)">
+              <div class="btn flex aic jcc mb5 f24 b wh"
+                :style="`background:${item.op === btn.value ? btn.background : grayBg}`">
+                <van-icon :name="btn.icon" />
+              </div>
+              <span class="c32 b">{{btn.name}}</span>
             </div>
           </div>
           <!-- 离线遮罩 -->
-          <!-- <div class="overlay flex aic jcc f24 b wh"
+          <div class="overlay flex aic jcc f24 b wh"
             v-show="!item.online">
             离线
-          </div> -->
+          </div>
         </div>
       </div>
     </div>
@@ -120,8 +146,7 @@
         <van-cell-group :border="false">
           <van-field v-model="targetParamHighValue"
             label="高于"
-            type="number"
-            :error-message="targetParamValueError">
+            type="number">
             <template #right-icon>
               <span>{{targetParam==='温度'?'℃':'%'}} 时关闭</span>
             </template>
@@ -143,6 +168,7 @@
 <script>
 import { Toast, Dialog } from 'vant';
 import { deleteOne, webSocketAp, getOneByDeviceid, deviceList } from '@/api';
+import { rollingDoorCtrls } from '@/assets/js/protocol';
 
 const controls = [
   {
@@ -172,10 +198,12 @@ const controls = [
   //   icon: '',
   // },
 ];
+let hbIntervalId;
 export default {
   data() {
     return {
       controls,
+      rollingDoorCtrls, // 智能卷帘门控制
       linking: false,
       group: '',
       deviceList: [],
@@ -186,6 +214,8 @@ export default {
       paramSetterVisible: false,
       targetParamValueError: '', // 输入错误提示
       editingItem: null, // 当前编辑的对象
+      grayBg: 'linear-gradient(136deg,rgba(255,255,255,1) 0%,gray 100%);',
+      autoMode: false,
     };
   },
   computed: {
@@ -223,8 +253,19 @@ export default {
     // 参数设置器确认回调
     onSetterConfirm() {
       // 判断参数是否输入正确
+      if (
+        this.targetParamHighValue === undefined ||
+        !this.targetParamHighValue === undefined
+      ) {
+        this.targetParamValueError = '值不能为空';
+        return;
+      }
       const highValue = Number(this.targetParamHighValue);
       const lowValue = Number(this.targetParamLowValue);
+      if (highValue <= lowValue) {
+        this.targetParamValueError = '值上限必须高于值下限';
+        return;
+      }
       let deviceType;
       if (this.targetParam === '温度') {
         deviceType = 'temperature';
@@ -255,6 +296,7 @@ export default {
         this.editingItem.targetLowHumidity = lowValue;
       }
       this.onSlideChange(this.editingItem, [highValue, lowValue], deviceType);
+      this.autoMode = true;
       this.paramSetterVisible = false;
     },
     // 手动编辑目标值
@@ -274,15 +316,20 @@ export default {
     },
     // 温度控制值变化
     onSlideChange(item, values, deviceType) {
-      console.log(item);
       if (this.linking) {
+        this.autoMode = false;
         // 判断是否设置了下限目标
-        const targetLow =
+        let targetLow =
           item[
-            item.targetIndex === 'temperature'
+            deviceType === 'temperature'
               ? 'targetLowTemperature'
               : 'targetLowHumidity'
           ];
+        if (values[1] !== undefined) {
+          targetLow = String(values[1]);
+        } else {
+          targetLow = String(values[0] - 1);
+        }
         this.ws.send(
           JSON.stringify({
             action: 'update',
@@ -300,9 +347,7 @@ export default {
                   },
                 },
                 {
-                  targetLow: values[1]
-                    ? String(values[1])
-                    : targetLow || String(values[0] - 5),
+                  targetLow,
                   reaction: {
                     switch: 'on',
                   },
@@ -396,15 +441,19 @@ export default {
           deviceid: dev.deviceid,
           deviceType: this.authType,
         }).then(resp => {
-          // 获取在线状态
-          this.$set(
-            dev,
-            'online',
-            (resp.result && resp.result.online) || false,
-          );
-          dev.ui = resp.result.extra.extra.ui;
-          if (dev.online) {
-            this.getDeviceStatus(dev.deviceid);
+          if (resp.code === '1') {
+            // 获取在线状态
+            this.$set(
+              dev,
+              'online',
+              (resp.result && resp.result.online) || false,
+            );
+            dev.ui = resp.result.extra.extra.ui;
+            if (dev.online) {
+              this.getDeviceStatus(dev.deviceid);
+            }
+          } else {
+            Toast(resp.msg);
           }
         });
       });
@@ -412,7 +461,7 @@ export default {
     // ws信息接收回调
     onWsMessage(msg) {
       const message = JSON.parse(msg.data);
-      const { deviceid, params, error } = message;
+      const { deviceid, params, error, config, action } = message;
       if (error === 403) {
         const deviceName = this.deviceList.filter(
           item => item.deviceid === deviceid,
@@ -424,11 +473,11 @@ export default {
         return;
       }
       // TODO: 这里用http请求设备当前状态，这样就不会触发onmessage了
-      if (message.params === undefined) {
+      if (params === undefined) {
         this.getDeviceStatus(message.deviceid);
       }
       // 监听系统消息
-      if (message.action === 'sysmsg') {
+      if (action === 'sysmsg') {
         // 说明设备在线离线发生变化
         const { online } = params;
         const targetDevice = this.deviceList.filter(
@@ -439,7 +488,7 @@ export default {
         }
       }
       // 监听状态更新
-      if (message.action === 'update') {
+      if (action === 'update') {
         // 说明设备状态更新
         const {
           currentHumidity,
@@ -447,6 +496,7 @@ export default {
           targets,
           deviceType,
           switch: switchStatus,
+          op,
         } = params;
         const targetDevice = this.deviceList.filter(
           dev => dev.deviceid === deviceid,
@@ -459,8 +509,12 @@ export default {
             this.$set(targetDevice, 'humidity', currentHumidity);
           if (targets) {
             // 有targets说明是温湿器
-            const highValue = targets.filter(item => item.targetHigh)[0];
-            const lowValue = targets.filter(item => item.lowValue)[0];
+            const highValue = targets.filter(
+              item => item.targetHigh !== undefined,
+            )[0];
+            const lowValue = targets.filter(
+              item => item.lowValue !== undefined,
+            )[0];
             this.$set(targetDevice, 'targetIndex', deviceType);
             if (deviceType === 'temperature') {
               if (highValue) {
@@ -481,42 +535,62 @@ export default {
               if (highValue) {
                 this.$set(
                   targetDevice,
-                  'targetHumidity',
+                  'targetHighHumidity',
                   parseInt(highValue.targetHigh),
                 );
               }
               if (lowValue) {
                 this.$set(
                   targetDevice,
-                  'targetHumidity',
-                  parseInt(lowValue.targetHigh),
+                  'targetLowHumidity',
+                  parseInt(lowValue.targetLow),
                 );
               }
             }
           }
+          // 如果有op，说明是智能卷帘门
+          op && this.$set(targetDevice, 'op', op);
         }
       }
       // 初始查询返回
-      if (message.params) {
+      if (params) {
         const {
-          currentHumidity,
-          currentTemperature,
-          targets,
-          deviceType,
-          switch: switchStatus,
+          currentHumidity, // 当前湿度
+          currentTemperature, // 当前温度
+          targets, // 目标值
+          deviceType, // 目标参数（温度或湿度）
+          switch: switchStatus, // 开启状态
+          op, // 智能卷帘门 状态参数
         } = params;
+        // 获取目标设备
         const targetDevice = this.deviceList.filter(
           dev => dev.deviceid === deviceid,
         )[0];
         if (targetDevice) {
+          targetDevice.requestCount = targetDevice.requestCount
+            ? targetDevice.requestCount + 1
+            : 1;
           switchStatus && this.$set(targetDevice, 'switchStatus', switchStatus);
           currentTemperature &&
             this.$set(targetDevice, 'temperature', currentTemperature);
           currentHumidity &&
             this.$set(targetDevice, 'humidity', currentHumidity);
           if (targets) {
-            const highValue = targets.filter(item => item.targetHigh)[0];
-            const lowValue = targets.filter(item => item.targetLow)[0];
+            const highValue = targets.filter(
+              item => item.targetHigh !== undefined,
+            )[0];
+            // 如果是第一次请求温湿器参数
+            if (deviceType && highValue && targetDevice.requestCount === 1) {
+              // 设置参数
+              this.onSlideChange(
+                targetDevice,
+                [parseInt(highValue.targetHigh), undefined],
+                deviceType,
+              );
+            }
+            const lowValue = targets.filter(
+              item => item.targetLow !== undefined,
+            )[0];
             this.$set(targetDevice, 'targetIndex', deviceType);
             if (deviceType === 'temperature') {
               if (highValue) {
@@ -537,22 +611,40 @@ export default {
               if (highValue) {
                 this.$set(
                   targetDevice,
-                  'targetHumidity',
+                  'targetHighHumidity',
                   parseInt(highValue.targetHigh),
                 );
               }
               if (lowValue) {
                 this.$set(
                   targetDevice,
-                  'targetHumidity',
-                  parseInt(lowValue.targetHigh),
+                  'targetLowHumidity',
+                  parseInt(lowValue.targetLow),
                 );
               }
             }
           }
+          // 如果有op，说明是智能卷帘门
+          op && this.$set(targetDevice, 'op', op);
+        }
+      }
+
+      // config参数
+      if (config) {
+        const { hb, hbInterval } = config;
+        if (hb) {
+          // 说明需要发送心跳
+          this.sendHb(hbInterval || 90);
         }
       }
       console.log('收到的消息：', message);
+    },
+    // 发送心跳
+    sendHb(interval) {
+      hbIntervalId && clearInterval(hbIntervalId);
+      hbIntervalId = setInterval(() => {
+        this.ws.send('ping');
+      }, interval * 1000);
     },
     // 连接ws
     connectWebsocket() {
@@ -615,6 +707,8 @@ export default {
   },
 
   beforeDestroy() {
+    hbIntervalId && clearInterval(hbIntervalId);
+    hbIntervalId = null;
     this.ws.close();
   },
 };
@@ -726,6 +820,10 @@ export default {
 .slider-bar {
   height: 56px;
   margin-top: 15px;
+  transition: all 0.3s;
+  &.invalid {
+    filter: grayscale(100%);
+  }
 }
 .slider-button {
   width: 56px;
@@ -751,6 +849,33 @@ export default {
     rgba(137, 170, 254, 1) 0%,
     rgba(40, 98, 249, 1) 100%
   );
+}
+.edit-btn-wrapper {
+  position: relative;
+  background: linear-gradient(136deg, rgba(255, 255, 255, 1) 0%, gray 100%);
+  height: 30px;
+  width: 30px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #fff;
+  transition: all 0.3s;
+  &.active {
+    background: linear-gradient(
+      132deg,
+      rgba(207, 255, 209, 1) 0%,
+      rgba(24, 185, 13, 1) 100%
+    );
+  }
+}
+.mode-tag {
+  transition: all 0.3s;
+  &.mode-tag-auto {
+    top: 110%;
+    width: 50px;
+    text-align: center;
+  }
 }
 </style>
 <style lang="scss">
