@@ -32,6 +32,13 @@
         label="设备号："
         readonly
         placeholder="" />
+      <div v-show="ui === '单通道开关'">
+        <van-switch-cell v-model="pulse" title="点动状态：" />
+        <van-field
+          v-model="pulseWidth"
+          label="时间设置"
+          placeholder="仅支持0.5的整数位，范围0.5~3600秒" />
+      </div>
     </div>
     <van-popup
       :close-on-click-overlay="false"
@@ -61,6 +68,9 @@ export default {
       groups: ['默认分组'],
       pickType: '',
       pickPopupVisible: false,
+      pulse: false,
+      pulseWidth: '',
+      ui: '',
     };
   },
   mounted() {
@@ -86,6 +96,7 @@ export default {
     this.deviceName = this.$route.query.deviceName;
     this.location = this.$route.query.loc;
     this.group = this.$route.query.group;
+    this.ui = this.$route.query.ui;
   },
   methods: {
     onPickerCancel() {
@@ -113,7 +124,7 @@ export default {
         name: this.deviceName,
       }).then(resp => {
         if (resp.code === '1') {
-          Toast('修改将延迟生效，请稍候...');
+          // Toast('修改将延迟生效，请稍候...');
           this.$router.push('/device-list');
         } else {
           Toast(resp.msg);

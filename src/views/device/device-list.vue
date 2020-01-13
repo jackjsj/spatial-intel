@@ -19,7 +19,7 @@
           <div class="header-title f16 b c32">{{item.name}}</div>
           <div class="flex aic header-icon" v-if="authType!=='2'">
             <van-icon class="mr10" name="wap-nav"
-              @click="$router.push(`/device-edit?deviceid=${item.deviceid}&deviceName=${item.name}&loc=${item.deviceLocation}&group=${item.deviceGroup}`)" />
+              @click="$router.push(`/device-edit?deviceid=${item.deviceid}&deviceName=${item.name}&loc=${item.deviceLocation}&group=${item.deviceGroup}&ui=${item.ui}`)" />
             <van-icon name="delete"
               @click="deleteDevice(item.deviceid)" />
           </div>
@@ -480,9 +480,9 @@ export default {
       if (action === 'sysmsg') {
         // 说明设备在线离线发生变化
         const { online } = params;
-        const targetDevice = this.deviceList.filter(
+        const targetDevice = this.deviceList.find(
           dev => dev.deviceid === deviceid,
-        )[0];
+        );
         if (targetDevice) {
           this.$set(targetDevice, 'online', online);
         }
@@ -497,24 +497,26 @@ export default {
           deviceType,
           switch: switchStatus,
           op,
+          pulse, // 开关点动状态
+          pulseWidth, // 点动时间长短
         } = params;
-        const targetDevice = this.deviceList.filter(
+        const targetDevice = this.deviceList.find(
           dev => dev.deviceid === deviceid,
-        )[0];
+        );
         if (targetDevice) {
           switchStatus && this.$set(targetDevice, 'switchStatus', switchStatus);
+          pulse && this.$set(targetDevice, 'pulse', pulse);
+          pulseWidth && this.$set(targetDevice, 'pulseWidth', pulseWidth);
           currentTemperature &&
             this.$set(targetDevice, 'temperature', currentTemperature);
           currentHumidity &&
             this.$set(targetDevice, 'humidity', currentHumidity);
           if (targets) {
             // 有targets说明是温湿器
-            const highValue = targets.filter(
+            const highValue = targets.find(
               item => item.targetHigh !== undefined,
-            )[0];
-            const lowValue = targets.filter(
-              item => item.lowValue !== undefined,
-            )[0];
+            );
+            const lowValue = targets.find(item => item.lowValue !== undefined);
             this.$set(targetDevice, 'targetIndex', deviceType);
             if (deviceType === 'temperature') {
               if (highValue) {
@@ -561,24 +563,28 @@ export default {
           deviceType, // 目标参数（温度或湿度）
           switch: switchStatus, // 开启状态
           op, // 智能卷帘门 状态参数
+          pulse, // 开关点动状态
+          pulseWidth, // 点动时间长短
         } = params;
         // 获取目标设备
-        const targetDevice = this.deviceList.filter(
+        const targetDevice = this.deviceList.find(
           dev => dev.deviceid === deviceid,
-        )[0];
+        );
         if (targetDevice) {
           targetDevice.requestCount = targetDevice.requestCount
             ? targetDevice.requestCount + 1
             : 1;
           switchStatus && this.$set(targetDevice, 'switchStatus', switchStatus);
+          pulse && this.$set(targetDevice, 'pulse', pulse);
+          pulseWidth && this.$set(targetDevice, 'pulseWidth', pulseWidth);
           currentTemperature &&
             this.$set(targetDevice, 'temperature', currentTemperature);
           currentHumidity &&
             this.$set(targetDevice, 'humidity', currentHumidity);
           if (targets) {
-            const highValue = targets.filter(
+            const highValue = targets.find(
               item => item.targetHigh !== undefined,
-            )[0];
+            );
             // 如果是第一次请求温湿器参数
             if (deviceType && highValue && targetDevice.requestCount === 1) {
               // 设置参数
@@ -588,9 +594,7 @@ export default {
                 deviceType,
               );
             }
-            const lowValue = targets.filter(
-              item => item.targetLow !== undefined,
-            )[0];
+            const lowValue = targets.find(item => item.targetLow !== undefined);
             this.$set(targetDevice, 'targetIndex', deviceType);
             if (deviceType === 'temperature') {
               if (highValue) {

@@ -18,6 +18,7 @@ import {
   Tab,
   Tabs,
   Switch,
+  SwitchCell,
   DatetimePicker,
   Swipe,
   SwipeItem,
@@ -52,6 +53,7 @@ Vue.use(NavBar)
   .use(Tab)
   .use(Tabs)
   .use(Switch)
+  .use(SwitchCell)
   .use(DatetimePicker)
   .use(Swipe)
   .use(Overlay)
